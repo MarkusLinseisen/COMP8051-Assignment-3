@@ -209,7 +209,7 @@ enum {
 
 //returns camera rotation
 - (NSString*)getRotation {
-    return [NSString stringWithFormat:@"Rotation: %.01f", cameraRot];
+    return [NSString stringWithFormat:@"Rotation: %.01f", cameraRot * 180 / M_PI];
 }
 
 //generate maze
