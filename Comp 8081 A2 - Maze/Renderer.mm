@@ -40,7 +40,7 @@ enum
     GLuint crateTexture;
     std::chrono::time_point<std::chrono::steady_clock> lastTime;
     
-    GLKMatrix4 mvp;
+    GLKMatrix4 m, v, p;
     GLKMatrix3 normalMatrix;
 
     float xRot, yRot, zRot; //rotation angles for all 3 axis
@@ -115,40 +115,20 @@ enum
     auto currentTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
     lastTime = currentTime;
-    
-    if (_isRotating)
-    {
-        xRot += 0.001f * elapsedTime;
-        if(xRot >= 360.0f)
-            xRot = 0.0f;
-        
-        zRot += 0.001f * elapsedTime;
-        if(zRot >= 360.0f)
-            zRot = 0.0f;
-    }
 
     // it looks like this code translates, then scales, then rotates the model,
     // but because matrix multiplication it rotates, then scales, then translates
-    GLKMatrix4 m = GLKMatrix4Identity;
-    m = GLKMatrix4Translate(m, x, y, z);
-    m = GLKMatrix4Scale(m, _scale, _scale, _scale);
-    m = GLKMatrix4RotateX(m, xRot);
-    m = GLKMatrix4RotateZ(m, zRot);
+    m = GLKMatrix4MakeTranslation(x, y, z);
 
-    GLKMatrix4 v = GLKMatrix4MakeLookAt(cameraX, cameraY, cameraZ,
-                                       targetX, targetY, targetZ,
-                                       0, 1, 0);
+    v = GLKMatrix4MakeYRotation(yRot);
+    v = GLKMatrix4Translate(v, -cameraX, -cameraY, -cameraZ);
 
-    GLKMatrix4 mv = GLKMatrix4Multiply(v, m);
-    
     // don't need a normal matrix if we scale x y and z uniformly
-    normalMatrix = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(mv), NULL);
+    normalMatrix = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(v, m)), NULL);
     
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
     
-    GLKMatrix4 p = GLKMatrix4MakePerspective(60.0f * M_PI / 180.0f, aspect, 1.0f, 20.0f);
-    
-    mvp = GLKMatrix4Multiply(p, mv);
+    p = GLKMatrix4MakePerspective(100.0f * M_PI / 180.0f, aspect, 1.0f, 20.0f);
 }
 
 //rotates the cube on the z axis
@@ -188,8 +168,8 @@ enum
 //translates the cube on the x and y axis
 - (void)translateRect:(float)xDelta secondDelta:(float)zDelta
 {
-    x += xDelta;
-    y += zDelta;
+    cameraZ += zDelta;
+    yRot += xDelta;
 }
 
 //resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
@@ -215,9 +195,7 @@ enum
 - (void)draw:(CGRect)drawRect;
 {
 
-    
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)mvp.m);
-    
+    GLKMatrix4 vp = GLKMatrix4Multiply(p, v);
     
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, normalMatrix.m);
     glUniform1i(uniforms[UNIFORM_PASSTHROUGH], false);
@@ -242,7 +220,11 @@ enum
                            GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
     glEnableVertexAttribArray ( 3 );
     
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)mvp.m);
+    m = GLKMatrix4MakeTranslation(x, y, z);
+    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(vp, m).m);
+    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+    m = GLKMatrix4MakeTranslation(x + 1, y, z);
+    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(vp, m).m);
     glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
 }
 
