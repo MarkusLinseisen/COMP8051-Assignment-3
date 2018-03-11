@@ -66,6 +66,7 @@
 
 //Double tap will toggle whether the cube will automatically rotate
 - (void)handleDoubleTap:(UITapGestureRecognizer *)recognizer {
+    [glesRenderer reset];
 }
 
 // vertical panning moves camera forwards and backwards

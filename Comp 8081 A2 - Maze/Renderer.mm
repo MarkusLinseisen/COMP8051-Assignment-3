@@ -75,9 +75,7 @@ enum {
     }
     
     //setup initial camera coordinates
-    cameraX = 0.0f;
-    cameraZ = 5.0f;
-    cameraRot = 0.0f;
+    [self reset];
     
     crateTexture = [self setupTexture:@"crate.jpg"];
     glActiveTexture(GL_TEXTURE0);
@@ -118,7 +116,9 @@ enum {
 
 //resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
 - (void)reset {
-    cameraX = cameraZ = cameraRot = 0.0f;
+    cameraX = 0.0f;
+    cameraZ = 5.0f;
+    cameraRot = 0.0f;
 }
 
 - (void)draw:(CGRect)drawRect; {
