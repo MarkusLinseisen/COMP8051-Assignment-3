@@ -13,10 +13,8 @@ uniform mat3 normalMatrix;
 uniform bool passThrough;
 uniform bool shadeInFrag;
 
-void main()
-{
-    if (passThrough)
-    {
+void main() {
+    if (passThrough) {
         // Simple passthrough shader
         v_color = color;
         v_normal = vec3(0, 0, 0);

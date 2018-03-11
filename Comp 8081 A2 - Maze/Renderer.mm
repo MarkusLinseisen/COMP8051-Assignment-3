@@ -12,8 +12,7 @@
 
 
 // Uniform index.
-enum
-{
+enum {
     UNIFORM_MODELVIEWPROJECTION_MATRIX,
     UNIFORM_NORMAL_MATRIX,
     UNIFORM_PASSTHROUGH,
@@ -24,14 +23,11 @@ enum
 GLint uniforms[NUM_UNIFORMS];
 
 // Attribute index.
-enum
-{
+enum {
     ATTRIB_VERTEX,
     ATTRIB_NORMAL,
     NUM_ATTRIBUTES
 };
-
-
 
 @interface Renderer () {
     GLKView *theView;
@@ -49,7 +45,6 @@ enum
     float cameraX, cameraY, cameraZ; //location of the camera (eyes)
     float targetX, targetY, targetZ; //coordinates of the point being looked at
     
-    
     float _scale;           //scale of cube
 
     float *vertices, *normals, *texCoords;
@@ -58,24 +53,19 @@ enum
 
 @end
 
-
-
 @implementation Renderer
 
 @synthesize _isRotating;
 
-- (void)dealloc
-{
+- (void)dealloc {
     glDeleteProgram(programObject);
 }
 
-- (void)loadModels
-{
+- (void)loadModels {
     numIndices = glesRenderer.GenQuad(1.0f, &vertices, &normals, &texCoords, &indices);
 }
 
-- (void)setup:(GLKView *)view
-{
+- (void)setup:(GLKView *)view {
     view.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     
     if (!view.context) {
@@ -85,8 +75,9 @@ enum
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     theView = view;
     [EAGLContext setCurrentContext:view.context];
-    if (![self setupShaders])
+    if (![self setupShaders]) {
         return;
+    }
     
     _isRotating = 1;
     _scale = 1.0f;
@@ -110,8 +101,7 @@ enum
 
 }
 
-- (void)update
-{
+- (void)update {
     auto currentTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
     lastTime = currentTime;
@@ -132,69 +122,54 @@ enum
 }
 
 //rotates the cube on the z axis
-- (void)rotateRectHorizontal:(float)angle
-{
-
+- (void)rotateRectHorizontal:(float)angle {
     zRot += angle;
-    if (zRot >= 360.0f)
-    {
+    if (zRot >= 360.0f) {
         zRot = 0.0f;
-    }else if(zRot < 0){
+    } else if(zRot < 0) {
         zRot = 360.0f;
     }
 }
 
 //rotates the cube on the x axis
-- (void)rotateRectVertical:(float)angle
-{
-
+- (void)rotateRectVertical:(float)angle {
     xRot += angle;
-    if (xRot >= 360.0f)
-    {
+    if (xRot >= 360.0f) {
         xRot = 0.0f;
-    }else if(xRot < 0){
+    } else if(xRot < 0) {
         xRot = 360.0f;
     }
-    
 }
 
 //scales the cube, setting _scale to the new scale
-- (void)scaleRect:(float)scale
-{
+- (void)scaleRect:(float)scale {
     _scale = scale;
-    
 }
 
 //translates the cube on the x and y axis
-- (void)translateRect:(float)xDelta secondDelta:(float)zDelta
-{
+- (void)translateRect:(float)xDelta secondDelta:(float)zDelta {
     cameraZ += zDelta;
     yRot += xDelta;
 }
 
 //resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
-- (void)reset
-{
+- (void)reset {
     x = y = z = 0.0f;
     xRot = yRot = zRot = 0.0f;
     _scale = 1.0f;
 }
 
 //returns the x y z coordinates of the cube's transformation
-- (NSString*)getPosition
-{
+- (NSString*)getPosition {
     return [NSString stringWithFormat:@"Position: %.01f,%.01f,%.01f", x,y,z];
 }
 
 //returns the rotation of the cube
-- (NSString*)getRotation
-{
+- (NSString*)getRotation {
     return [NSString stringWithFormat:@"Rotation: %.01f,%.01f,%.01f", xRot, yRot, zRot];
 }
 
-- (void)draw:(CGRect)drawRect;
-{
-
+- (void)draw:(CGRect)drawRect; {
     GLKMatrix4 vp = GLKMatrix4Multiply(p, v);
     
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, normalMatrix.m);
@@ -206,30 +181,27 @@ enum
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glUseProgram ( programObject );
     
-    glVertexAttribPointer ( 0, 3, GL_FLOAT,
-                           GL_FALSE, 3 * sizeof ( GLfloat ), vertices );
+    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), vertices );
     glEnableVertexAttribArray ( 0 );
     
     glVertexAttrib4f ( 1, 1.0f, 0.0f, 0.0f, 1.0f );
     
-    glVertexAttribPointer ( 2, 3, GL_FLOAT,
-                           GL_FALSE, 3 * sizeof ( GLfloat ), normals );
+    glVertexAttribPointer ( 2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), normals );
     glEnableVertexAttribArray ( 2 );
     
-    glVertexAttribPointer ( 3, 2, GL_FLOAT,
-                           GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
+    glVertexAttribPointer ( 3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
     glEnableVertexAttribArray ( 3 );
     
     m = GLKMatrix4MakeTranslation(x, y, z);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(vp, m).m);
     glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+    
     m = GLKMatrix4MakeTranslation(x + 1, y, z);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(vp, m).m);
     glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
 }
 
-- (bool)setupShaders
-{
+- (bool)setupShaders {
     // Load shaders
     char *vShaderStr = glesRenderer.LoadShaderFile([[[NSBundle mainBundle] pathForResource:[[NSString stringWithUTF8String:"Shader.vsh"] stringByDeletingPathExtension] ofType:[[NSString stringWithUTF8String:"Shader.vsh"] pathExtension]] cStringUsingEncoding:1]);
     char *fShaderStr = glesRenderer.LoadShaderFile([[[NSBundle mainBundle] pathForResource:[[NSString stringWithUTF8String:"Shader.fsh"] stringByDeletingPathExtension] ofType:[[NSString stringWithUTF8String:"Shader.fsh"] pathExtension]] cStringUsingEncoding:1]);
@@ -248,8 +220,7 @@ enum
 }
 
 // Load in and set up texture image (adapted from Ray Wenderlich)
-- (GLuint)setupTexture:(NSString *)fileName
-{
+- (GLuint)setupTexture:(NSString *)fileName {
     CGImageRef spriteImage = [UIImage imageNamed:fileName].CGImage;
     if (!spriteImage) {
         NSLog(@"Failed to load image %@", fileName);
@@ -281,8 +252,7 @@ enum
 
 
 //generate maze
--(void) generateMaze{
-    
+-(void) generateMaze {
     static bool mazeArray[10][10] = {
         {true, true, true, true, false, true, true, true, true, true},
         {true, false, false, true, false, false, false, true, false, true},
@@ -298,17 +268,14 @@ enum
     
     for(int r=0;r<10;r++){
         for(int c=0;c<10;c++){
-            
             if(mazeArray[r][c]){
                 printf("*"); //wall
             }else{
                 printf(" "); //path
             }
-            
         }
         printf("\n");
     }
-    
 }
 
 @end

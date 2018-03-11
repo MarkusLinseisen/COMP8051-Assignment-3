@@ -14,11 +14,11 @@
 #include "GLESRenderer.hpp"
 
 
-char *GLESRenderer::LoadShaderFile(const char *shaderFileName)
-{
+char *GLESRenderer::LoadShaderFile(const char *shaderFileName) {
     FILE *fp = fopen(shaderFileName, "rb");
-    if (fp == NULL)
+    if (fp == NULL) {
         return NULL;
+    }
 
     fseek(fp , 0 , SEEK_END);
     long totalBytes = ftell(fp);
@@ -28,34 +28,34 @@ char *GLESRenderer::LoadShaderFile(const char *shaderFileName)
     memset(buf, 0, totalBytes+1);
 
     fp = fopen(shaderFileName, "rb");
-    if (fp == NULL)
+    if (fp == NULL) {
         return NULL;
+    }
 
     size_t bytesRead = fread(buf, totalBytes, 1, fp);
     fclose(fp);
-    if (bytesRead < 1)
+    if (bytesRead < 1) {
         return NULL;
+    }
 
     return buf;
 }
 
-GLuint GLESRenderer::LoadShader(GLenum type, const char *shaderSrc)
-{
+GLuint GLESRenderer::LoadShader(GLenum type, const char *shaderSrc) {
     GLuint shader = glCreateShader(type);
-    if (shader == 0)
+    if (shader == 0) {
         return 0;
+    }
     
     glShaderSource(shader, 1, &shaderSrc, NULL);
     glCompileShader(shader);
 
     GLint compiled;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-    if (!compiled)
-    {
+    if (!compiled) {
         GLint infoLen = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-        if (infoLen > 1)
-        {
+        if (infoLen > 1) {
             char *infoLog = (char *)malloc(sizeof ( char ) * infoLen);
             glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
             std::cerr << "*** SHADER COMPILE ERROR:" << std::endl;
@@ -69,22 +69,20 @@ GLuint GLESRenderer::LoadShader(GLenum type, const char *shaderSrc)
     return shader;
 }
 
-GLuint GLESRenderer::LoadProgram(const char *vertShaderSrc, const char *fragShaderSrc)
-{
+GLuint GLESRenderer::LoadProgram(const char *vertShaderSrc, const char *fragShaderSrc) {
     GLuint vertexShader = LoadShader(GL_VERTEX_SHADER, vertShaderSrc);
-    if (vertexShader == 0)
+    if (vertexShader == 0) {
         return 0;
+    }
     
     GLuint fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
-    if (fragmentShader == 0)
-    {
+    if (fragmentShader == 0) {
         glDeleteShader(vertexShader);
         return 0;
     }
     
     GLuint programObject = glCreateProgram();
-    if (programObject == 0)
-    {
+    if (programObject == 0) {
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
         return 0;
@@ -96,12 +94,10 @@ GLuint GLESRenderer::LoadProgram(const char *vertShaderSrc, const char *fragShad
     
     GLint linked;
     glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
-    if (!linked)
-    {
+    if (!linked) {
         GLint infoLen = 0;
         glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &infoLen);
-        if (infoLen > 1)
-        {
+        if (infoLen > 1) {
             char *infoLog = (char *)malloc(sizeof(char) * infoLen);
             glGetProgramInfoLog(programObject, infoLen, NULL, infoLog);
             std::cerr << "*** SHADER LINK ERROR:" << std::endl;
@@ -119,15 +115,12 @@ GLuint GLESRenderer::LoadProgram(const char *vertShaderSrc, const char *fragShad
 }
 
 
-int GLESRenderer::GenCube(float scale, float **vertices, float **normals,
-                          float **texCoords, int **indices)
-{
+int GLESRenderer::GenCube(float scale, float **vertices, float **normals, float **texCoords, int **indices) {
     int i;
     int numVertices = 24;
     int numIndices = 36;
     
-    float cubeVerts[] =
-    {
+    float cubeVerts[] = {
         -0.5f, -0.5f, -0.5f,
         -0.5f, -0.5f,  0.5f,
         0.5f, -0.5f,  0.5f,
@@ -154,8 +147,7 @@ int GLESRenderer::GenCube(float scale, float **vertices, float **normals,
         0.5f,  0.5f, -0.5f,
     };
     
-    float cubeNormals[] =
-    {
+    float cubeNormals[] = {
         0.0f, -1.0f, 0.0f,
         0.0f, -1.0f, 0.0f,
         0.0f, -1.0f, 0.0f,
@@ -182,8 +174,7 @@ int GLESRenderer::GenCube(float scale, float **vertices, float **normals,
         1.0f, 0.0f, 0.0f,
     };
     
-    float cubeTex[] =
-    {
+    float cubeTex[] = {
         0.0f, 0.0f,
         0.0f, 1.0f,
         1.0f, 1.0f,
@@ -208,52 +199,45 @@ int GLESRenderer::GenCube(float scale, float **vertices, float **normals,
         0.0f, 1.0f,
         1.0f, 1.0f,
         1.0f, 0.0f,
+    };
+    
+    GLuint cubeIndices[] = {
+        0, 2, 1,
+        0, 3, 2,
+        4, 5, 6,
+        4, 6, 7,
+        8, 9, 10,
+        8, 10, 11,
+        12, 15, 14,
+        12, 14, 13,
+        16, 17, 18,
+        16, 18, 19,
+        20, 23, 22,
+        20, 22, 21
     };
     
     // Allocate memory for buffers
-    if ( vertices != NULL )
-    {
+    if ( vertices != NULL ) {
         *vertices = (float *)malloc ( sizeof ( float ) * 3 * numVertices );
         memcpy ( *vertices, cubeVerts, sizeof ( cubeVerts ) );
-        
-        for ( i = 0; i < numVertices * 3; i++ )
-        {
+
+        for ( i = 0; i < numVertices * 3; i++ ) {
             ( *vertices ) [i] *= scale;
         }
     }
     
-    if ( normals != NULL )
-    {
+    if ( normals != NULL ) {
         *normals = (float *)malloc ( sizeof ( float ) * 3 * numVertices );
         memcpy ( *normals, cubeNormals, sizeof ( cubeNormals ) );
     }
     
-    if ( texCoords != NULL )
-    {
+    if ( texCoords != NULL ) {
         *texCoords = (float *)malloc ( sizeof ( float ) * 2 * numVertices );
         memcpy ( *texCoords, cubeTex, sizeof ( cubeTex ) ) ;
     }
     
-    
     // Generate the indices
-    if ( indices != NULL )
-    {
-        GLuint cubeIndices[] =
-        {
-            0, 2, 1,
-            0, 3, 2,
-            4, 5, 6,
-            4, 6, 7,
-            8, 9, 10,
-            8, 10, 11,
-            12, 15, 14,
-            12, 14, 13,
-            16, 17, 18,
-            16, 18, 19,
-            20, 23, 22,
-            20, 22, 21
-        };
-        
+    if ( indices != NULL ) {
         *indices = (int *)malloc ( sizeof ( int ) * numIndices );
         memcpy ( *indices, cubeIndices, sizeof ( cubeIndices ) );
     }

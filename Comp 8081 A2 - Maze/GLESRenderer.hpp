@@ -13,8 +13,7 @@
 
 #include <OpenGLES/ES2/gl.h>
 
-class GLESRenderer
-{
+class GLESRenderer {
 public:
     char *LoadShaderFile(const char *shaderFileName);
     GLuint LoadShader(GLenum type, const char *shaderSrc);
