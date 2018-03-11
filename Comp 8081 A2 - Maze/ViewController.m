@@ -19,20 +19,6 @@
 - (IBAction)theButton:(id)sender {
     NSLog(@"You pressed the Button!");
 }
-- (IBAction)ObjCIncrement:(id)sender {
-    
-    [theObject setUseObjC:YES];
-    [theObject IncrementValue];
-    [_valueLabel setText:[NSString stringWithFormat:@"Obj C value: %d", [theObject val]]];
-
-}
-- (IBAction)CPlusPlusIncrement:(id)sender {
-    [theObject setUseObjC:NO];
-    [theObject IncrementValue];
-    [_valueLabel setText:[NSString stringWithFormat:@"C++ value: %d", [theObject val]]];
-
-}
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -83,8 +69,6 @@
                                                 action:@selector(handlePinch:)];
      
     [self.view addGestureRecognizer:pinchHandler];
-    
-    theObject = [[MixTest alloc] init];
     
     [glesRenderer generateMaze]; //test generate maze
     
@@ -192,30 +176,14 @@
 - (void)update
 {
     [glesRenderer update];
-    
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     [glesRenderer draw:rect];
-    
     _positionLabel.text = [glesRenderer getPosition];   //updates position, and displays it on label
     _rotationLabel.text = [glesRenderer getRotation];   //displays rotation every frame (to a label)
     
 }
 
-
-
 @end
-
-
-
-
-
-
-
-
-
-
-
-
