@@ -47,7 +47,7 @@ enum
     float x, y, z;          //coordinate of cube
     
     float cameraX, cameraY, cameraZ; //location of the camera (eyes)
-    float cameraCenterX, cameraCenterY, cameraCenterZ; //coordinates of the point being looked at
+    float targetX, targetY, targetZ; //coordinates of the point being looked at
     
     
     float _scale;           //scale of cube
@@ -137,7 +137,7 @@ enum
      mvp = GLKMatrix4Translate(GLKMatrix4Identity, x, y, z); //Translation
     
      mvp = GLKMatrix4MakeLookAt(cameraX, cameraY, cameraZ,
-                               cameraCenterX, cameraCenterY, 5.0,
+                               targetX, targetY, 5.0,
                                0, 1, 0);
     
      mvp = GLKMatrix4RotateX(mvp, xRot);                     //Rotation
@@ -200,8 +200,8 @@ enum
     y += zDelta;
     
     
-    cameraCenterX += xDelta;
-    cameraCenterY += zDelta;
+    targetX += xDelta;
+    targetY += zDelta;
 }
 
 //resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
