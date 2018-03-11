@@ -21,7 +21,7 @@
 - (NSString*)getPosition;
 - (NSString*)getRotation;
 - (void)draw:(CGRect)drawRect;
-
+- (void)generateMaze;
 
 @property int _isRotating;
 

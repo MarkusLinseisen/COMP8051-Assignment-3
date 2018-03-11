@@ -5,7 +5,6 @@
 
 #import "Renderer.h"
 #import <Foundation/Foundation.h>
-#import <GLKit/GLKit.h>
 #include <chrono>
 #include "GLESRenderer.hpp"
 
@@ -46,6 +45,10 @@ enum
 
     float xRot, yRot, zRot; //rotation angles for all 3 axis
     float x, y, z;          //coordinate of cube
+    
+    float cameraX, cameraY, cameraZ; //location of the camera (eyes)
+    float cameraCenterX, cameraCenterY, cameraCenterZ; //coordinates of the point being looked at
+    
     
     float _scale;           //scale of cube
 
@@ -92,6 +95,11 @@ enum
     z = -5.0f;      //sets default z coordinate to -5.0f
     xRot = zRot = 0.0f; //sets rotation angles to 0
     
+    //setup initial camera coordinates
+    cameraX = 0.0f;
+    cameraY = 1.0f;
+    cameraZ = -10.0f;
+    
     crateTexture = [self setupTexture:@"crate.jpg"];
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
@@ -100,6 +108,7 @@ enum
     glClearColor ( 0.0f, 0.0f, 0.0f, 0.0f );
     glEnable(GL_DEPTH_TEST);
     lastTime = std::chrono::steady_clock::now();
+
 }
 
 - (void)update
@@ -110,7 +119,7 @@ enum
     
     if (_isRotating)
     {
-
+        /*
         xRot += 0.001f * elapsedTime;
         if(xRot >= 360.0f)
             xRot = 0.0f;
@@ -118,21 +127,34 @@ enum
         zRot += 0.001f * elapsedTime;
         if(zRot >= 360.0f)
             zRot = 0.0f;
+        */
     }
- 
+    
     // Perspective
     
+
+    
      mvp = GLKMatrix4Translate(GLKMatrix4Identity, x, y, z); //Translation
+    
+     mvp = GLKMatrix4MakeLookAt(cameraX, cameraY, cameraZ,
+                               cameraCenterX, cameraCenterY, 5.0,
+                               0, 1, 0);
+    
      mvp = GLKMatrix4RotateX(mvp, xRot);                     //Rotation
      mvp = GLKMatrix4RotateZ(mvp, zRot);
+
      mvp = GLKMatrix4Scale(mvp, _scale, _scale, _scale);     //Scaling
+
     
      normalMatrix = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(mvp), NULL);
-     
+    
      float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
+    
      GLKMatrix4 perspective = GLKMatrix4MakePerspective(60.0f * M_PI / 180.0f, aspect, 1.0f, 20.0f);
-     
+    
      mvp = GLKMatrix4Multiply(perspective, mvp);
+    
+    
     
 }
 
@@ -173,8 +195,13 @@ enum
 //translates the cube on the x and y axis
 - (void)translateRect:(float)xDelta secondDelta:(float)zDelta
 {
+    
     x += xDelta;
     y += zDelta;
+    
+    
+    cameraCenterX += xDelta;
+    cameraCenterY += zDelta;
 }
 
 //resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
@@ -200,12 +227,17 @@ enum
 
 - (void)draw:(CGRect)drawRect;
 {
+
+    
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)mvp.m);
+    
+    
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, normalMatrix.m);
     glUniform1i(uniforms[UNIFORM_PASSTHROUGH], false);
     glUniform1i(uniforms[UNIFORM_SHADEINFRAG], true);
     
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);
+    
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glUseProgram ( programObject );
     
@@ -278,6 +310,178 @@ enum
     return texName;
 }
 
+
+//generate maze
+-(void) generateMaze{
+    
+    static bool mazeArray[10][10];   //true = wall, false = floor
+    int row = 0;
+    int col = 0;
+    
+    //1st row
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false; //entrance
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col] = true;
+    
+    row++;
+    col = 0;
+    
+    //2nd row
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col] = true;
+    
+    row++;
+    col = 0;
+    
+    //3rd
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col] = true;
+    
+    row++;
+    col = 0;
+    
+    //4th
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col] = true;
+    
+    row++;
+    col = 0;
+    
+    //5th row
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col] = true;
+    
+    row++;
+    col = 0;
+    
+    //6th row
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col] = true;
+    
+    row++;
+    col = 0;
+    
+    //7th
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col] = true;
+    
+    row++;
+    col = 0;
+    
+    //8th
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col] = true;
+    
+    row++;
+    col = 0;
+    
+    //9th
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col] = true;
+    
+    
+    row++;
+    col = 0;
+    
+    //10th
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col++] = false;
+    mazeArray[row][col++] = true;
+    mazeArray[row][col] = true;
+    
+    
+    
+    for(int r=0;r<10;r++){
+        for(int c=0;c<10;c++){
+            
+            if(mazeArray[r][c]){
+                printf("*"); //wall
+            }else{
+                printf(" "); //path
+            }
+            
+        }
+        printf("\n");
+    }
+    
+}
 
 @end
 
