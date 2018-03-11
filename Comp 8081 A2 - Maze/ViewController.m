@@ -33,6 +33,7 @@
 
 }
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
@@ -85,6 +86,8 @@
     
     theObject = [[MixTest alloc] init];
     
+    [glesRenderer generateMaze]; //test generate maze
+    
 }
 
 //If the cube is not rotating, the user can scale the cube
@@ -131,8 +134,8 @@
 //Two finger dragging will translate the cube
 - (void)handleTwoFingerPan:(UIPanGestureRecognizer *)recognizer
 {
-    if(glesRenderer._isRotating == 1) //if rotating, return
-        return;
+    //if rotating, return
+    //if(glesRenderer._isRotating == 1) return;
     
     float translationDelta = 0.1f;
    //CGPoint currentlocation = [recognizer locationInView:self.view];
@@ -202,4 +205,17 @@
 }
 
 
+
 @end
+
+
+
+
+
+
+
+
+
+
+
+
