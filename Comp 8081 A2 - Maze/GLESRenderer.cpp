@@ -260,3 +260,58 @@ int GLESRenderer::GenCube(float scale, float **vertices, float **normals,
     
     return numIndices;
 }
+
+int GLESRenderer::GenQuad(float scale, float **vertices, float **normals, float **texCoords, int **indices) {
+    int numVertices = 4;
+    int numIndices = 6;
+    
+    float quadVerts[] = {
+        -0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f,
+        0.5f, 0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+    };
+    
+    float quadNormals[] = {
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+    };
+    
+    float quadTex[] = {
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+    };
+    
+    GLuint quadIndices[] = {
+        2, 1, 0,
+        0, 3, 2,
+    };
+    
+    // Allocate memory for buffers
+    if ( vertices != NULL ) {
+        *vertices = (float *)malloc ( sizeof ( float ) * 3 * numVertices );
+        memcpy ( *vertices, quadVerts, sizeof ( quadVerts ) );
+    }
+    
+    if ( normals != NULL ) {
+        *normals = (float *)malloc ( sizeof ( float ) * 3 * numVertices );
+        memcpy ( *normals, quadNormals, sizeof ( quadNormals ) );
+    }
+    
+    if ( texCoords != NULL ) {
+        *texCoords = (float *)malloc ( sizeof ( float ) * 2 * numVertices );
+        memcpy ( *texCoords, quadTex, sizeof ( quadTex ) ) ;
+    }
+    
+    // Generate the indices
+    if ( indices != NULL ) {
+        *indices = (int *)malloc ( sizeof ( int ) * numIndices );
+        memcpy ( *indices, quadIndices, sizeof ( quadIndices ) );
+    }
+    
+    return numIndices;
+}

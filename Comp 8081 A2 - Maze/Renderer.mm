@@ -71,7 +71,7 @@ enum
 
 - (void)loadModels
 {
-    numIndices = glesRenderer.GenCube(1.0f, &vertices, &normals, &texCoords, &indices);
+    numIndices = glesRenderer.GenQuad(1.0f, &vertices, &normals, &texCoords, &indices);
 }
 
 - (void)setup:(GLKView *)view
