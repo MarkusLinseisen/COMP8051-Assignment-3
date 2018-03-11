@@ -314,159 +314,18 @@ enum
 //generate maze
 -(void) generateMaze{
     
-    static bool mazeArray[10][10];   //true = wall, false = floor
-    int row = 0;
-    int col = 0;
-    
-    //1st row
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false; //entrance
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col] = true;
-    
-    row++;
-    col = 0;
-    
-    //2nd row
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col] = true;
-    
-    row++;
-    col = 0;
-    
-    //3rd
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col] = true;
-    
-    row++;
-    col = 0;
-    
-    //4th
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col] = true;
-    
-    row++;
-    col = 0;
-    
-    //5th row
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col] = true;
-    
-    row++;
-    col = 0;
-    
-    //6th row
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col] = true;
-    
-    row++;
-    col = 0;
-    
-    //7th
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col] = true;
-    
-    row++;
-    col = 0;
-    
-    //8th
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col] = true;
-    
-    row++;
-    col = 0;
-    
-    //9th
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col] = true;
-    
-    
-    row++;
-    col = 0;
-    
-    //10th
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col++] = false;
-    mazeArray[row][col++] = true;
-    mazeArray[row][col] = true;
-    
-    
+    static bool mazeArray[10][10] = {
+        {true, true, true, true, false, true, true, true, true, true},
+        {true, false, false, true, false, false, false, true, false, true},
+        {true, true, false, false, false, true, true, true, false, true},
+        {true, true, true, true, false, false, false, false, false, true},
+        {true, false, false, false, false, true, true, false, true, true},
+        {true, false, true, true, true, true, true, false, true, true},
+        {true, false, true, true, true, false, true, false, true, true},
+        {true, false, true, true, true, false, true, false, true, true},
+        {true, false, false, false, false, false, true, false, true, true},
+        {true, true, true, true, true, true, true, false, true, true},
+    };
     
     for(int r=0;r<10;r++){
         for(int c=0;c<10;c++){
