@@ -39,13 +39,8 @@ enum {
     GLKMatrix4 m, v, p;
     GLKMatrix3 normalMatrix;
 
-    float xRot, yRot, zRot; //rotation angles for all 3 axis
-    float x, y, z;          //coordinate of cube
-    
-    float cameraX, cameraY, cameraZ; //location of the camera (eyes)
-    float targetX, targetY, targetZ; //coordinates of the point being looked at
-    
-    float _scale;           //scale of cube
+    float cameraX, cameraZ; // camera location
+    float cameraRot; // camera rotation about y
 
     float *vertices, *normals, *texCoords;
     int *indices, numIndices;
@@ -79,26 +74,19 @@ enum {
         return;
     }
     
-    _isRotating = 1;
-    _scale = 1.0f;
-    
-    x = y = z = 0.0f;
-    xRot = zRot = 0.0f; //sets rotation angles to 0
-    
     //setup initial camera coordinates
     cameraX = 0.0f;
-    cameraY = 0.0f;
     cameraZ = 5.0f;
+    cameraRot = 0.0f;
     
     crateTexture = [self setupTexture:@"crate.jpg"];
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     
-    glClearColor ( 0.0f, 0.0f, 0.0f, 0.0f );
+    glClearColor ( 0.5f, 0.5f, 0.5f, 0.5f );
     glEnable(GL_DEPTH_TEST);
     lastTime = std::chrono::steady_clock::now();
-
 }
 
 - (void)update {
@@ -108,10 +96,10 @@ enum {
 
     // it looks like this code translates, then scales, then rotates the model,
     // but because matrix multiplication it rotates, then scales, then translates
-    m = GLKMatrix4MakeTranslation(x, y, z);
+    m = GLKMatrix4MakeTranslation(0, 0, 0);
 
-    v = GLKMatrix4MakeYRotation(yRot);
-    v = GLKMatrix4Translate(v, -cameraX, -cameraY, -cameraZ);
+    v = GLKMatrix4MakeYRotation(cameraRot);
+    v = GLKMatrix4Translate(v, -cameraX, 0, -cameraZ);
 
     // don't need a normal matrix if we scale x y and z uniformly
     normalMatrix = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(v, m)), NULL);
@@ -121,52 +109,15 @@ enum {
     p = GLKMatrix4MakePerspective(100.0f * M_PI / 180.0f, aspect, 1.0f, 20.0f);
 }
 
-//rotates the cube on the z axis
-- (void)rotateRectHorizontal:(float)angle {
-    zRot += angle;
-    if (zRot >= 360.0f) {
-        zRot = 0.0f;
-    } else if(zRot < 0) {
-        zRot = 360.0f;
-    }
-}
-
-//rotates the cube on the x axis
-- (void)rotateRectVertical:(float)angle {
-    xRot += angle;
-    if (xRot >= 360.0f) {
-        xRot = 0.0f;
-    } else if(xRot < 0) {
-        xRot = 360.0f;
-    }
-}
-
-//scales the cube, setting _scale to the new scale
-- (void)scaleRect:(float)scale {
-    _scale = scale;
-}
-
 //translates the cube on the x and y axis
 - (void)translateRect:(float)xDelta secondDelta:(float)zDelta {
     cameraZ += zDelta;
-    yRot += xDelta;
+    cameraRot += xDelta;
 }
 
 //resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
 - (void)reset {
-    x = y = z = 0.0f;
-    xRot = yRot = zRot = 0.0f;
-    _scale = 1.0f;
-}
-
-//returns the x y z coordinates of the cube's transformation
-- (NSString*)getPosition {
-    return [NSString stringWithFormat:@"Position: %.01f,%.01f,%.01f", x,y,z];
-}
-
-//returns the rotation of the cube
-- (NSString*)getRotation {
-    return [NSString stringWithFormat:@"Rotation: %.01f,%.01f,%.01f", xRot, yRot, zRot];
+    cameraX = cameraZ = cameraRot = 0.0f;
 }
 
 - (void)draw:(CGRect)drawRect; {
@@ -192,11 +143,11 @@ enum {
     glVertexAttribPointer ( 3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
     glEnableVertexAttribArray ( 3 );
     
-    m = GLKMatrix4MakeTranslation(x, y, z);
+    m = GLKMatrix4MakeTranslation(0, 0, 0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(vp, m).m);
     glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
     
-    m = GLKMatrix4MakeTranslation(x + 1, y, z);
+    m = GLKMatrix4MakeTranslation(1, 0, 0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(vp, m).m);
     glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
 }
@@ -250,6 +201,15 @@ enum {
     return texName;
 }
 
+//returns camera position
+- (NSString*)getPosition {
+    return [NSString stringWithFormat:@"Position: %.01f,0.00,%.01f", cameraX,cameraZ];
+}
+
+//returns camera rotation
+- (NSString*)getRotation {
+    return [NSString stringWithFormat:@"Rotation: %.01f", cameraRot];
+}
 
 //generate maze
 -(void) generateMaze {
