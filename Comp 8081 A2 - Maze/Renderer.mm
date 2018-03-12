@@ -16,6 +16,11 @@ enum {
     UNIFORM_MODELVIEW_MATRIX,
     UNIFORM_PROJECTION_MATRIX,
     UNIFORM_SPOTLIGHT,
+    UNIFORM_SPOTLIGHTCUTOFF,
+    UNIFORM_SPOTLIGHTCOLOR,
+    UNIFORM_SKYCOLOR,
+    UNIFORM_FOG,
+    UNIFORM_FOGEND,
     UNIFORM_TEXTURE,
     NUM_UNIFORMS
 };
@@ -80,7 +85,7 @@ enum {
     glBindTexture(GL_TEXTURE_2D, crateTexture);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     
-    glClearColor ( 0.5f, 0.5f, 0.5f, 0.5f );
+    glClearColor ( 200.0 / 255.0, 180.0 / 255.0, 160.0 / 255.0, 1.0 );
     glEnable(GL_DEPTH_TEST);
     lastTime = std::chrono::steady_clock::now();
 }
@@ -114,8 +119,12 @@ enum {
 
 - (void)draw:(CGRect)drawRect; {
     glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
-
+    glUniform4f(uniforms[UNIFORM_SKYCOLOR], 200.0 / 255.0, 180.0 / 255.0, 160.0 / 255.0, 1.0);
     glUniform1i(uniforms[UNIFORM_SPOTLIGHT], true);
+    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], 0.9961);
+    glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 1.0, 1.0, 1.0, 1.0);
+    glUniform1i(uniforms[UNIFORM_FOG], true);
+    glUniform1f(uniforms[UNIFORM_FOGEND], 10.0);
     
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);
     
@@ -154,6 +163,11 @@ enum {
     uniforms[UNIFORM_MODELVIEW_MATRIX] = glGetUniformLocation(programObject, "modelViewMatrix");
     uniforms[UNIFORM_PROJECTION_MATRIX] = glGetUniformLocation(programObject, "projectionMatrix");
     uniforms[UNIFORM_SPOTLIGHT] = glGetUniformLocation(programObject, "spotlight");
+    uniforms[UNIFORM_SPOTLIGHTCUTOFF] = glGetUniformLocation(programObject, "spotlightCutoff");
+    uniforms[UNIFORM_SPOTLIGHTCOLOR] = glGetUniformLocation(programObject, "spotlightColor");
+    uniforms[UNIFORM_SKYCOLOR] = glGetUniformLocation(programObject, "skyColor");
+    uniforms[UNIFORM_FOG] = glGetUniformLocation(programObject, "fog");
+    uniforms[UNIFORM_FOGEND] = glGetUniformLocation(programObject, "fogEnd");
     uniforms[UNIFORM_TEXTURE] = glGetUniformLocation(programObject, "texSampler");
     
     return true;
