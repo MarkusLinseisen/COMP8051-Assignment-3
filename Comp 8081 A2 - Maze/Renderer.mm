@@ -38,6 +38,8 @@ enum {
     GLESRenderer glesRenderer;
     GLuint programObject;
     GLuint crateTexture;
+    GLuint floorTexture;
+    GLuint wallBothTexture;
     
     GLKMatrix4 m, v, p;
 
@@ -86,8 +88,10 @@ enum {
     [self reset];
     
     crateTexture = [self setupTexture:@"crate.jpg"];
+    floorTexture = [self setupTexture:@"floor.png"];
+    wallBothTexture = [self setupTexture:@"wall_both.png"];
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, crateTexture);
+    glBindTexture(GL_TEXTURE_2D, floorTexture);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     
     glEnable(GL_DEPTH_TEST);
@@ -99,7 +103,7 @@ enum {
     
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV) / (aspect * aspect), aspect, 0.1f, 10.0f);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV) / aspect, aspect, 0.1f, 10.0f);
 }
 
 //translates the cube on the x and y axis
@@ -159,8 +163,10 @@ enum {
         for (int j = 0; j < 10; j++) {
             if (mazeArray[i][j]) {
                 m = GLKMatrix4MakeTranslation(i, 0, -j);
+                    glBindTexture(GL_TEXTURE_2D, wallBothTexture);
             } else {
                 m = GLKMatrix4MakeTranslation(i, -1, -j);
+                    glBindTexture(GL_TEXTURE_2D, floorTexture);
             }
             glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
             glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
