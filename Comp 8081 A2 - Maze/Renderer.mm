@@ -86,7 +86,6 @@ enum {
     glBindTexture(GL_TEXTURE_2D, crateTexture);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     
-    glClearColor (0.784, 0.706, 0.627, 1.0);
     glEnable(GL_DEPTH_TEST);
     lastTime = std::chrono::steady_clock::now();
 }
@@ -121,10 +120,11 @@ enum {
 - (void)draw:(CGRect)drawRect; {
     glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
     if(isDay){
-        //glUniform4f(uniforms[UNIFORM_SKYCOLOR], 200.0 / 255.0, 180.0 / 255.0, 160.0 / 255.0, 1.0);
         glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.784, 0.706, 0.627, 1.00);
+        glClearColor(0.784, 0.706, 0.627, 1.00);
     }else{
         glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.125, 0.125, 0.251, 1.00);
+        glClearColor(0.125, 0.125, 0.251, 1.00);
     }
     
     glUniform1i(uniforms[UNIFORM_SPOTLIGHT], true);
