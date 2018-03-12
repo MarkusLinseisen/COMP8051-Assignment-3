@@ -9,7 +9,6 @@
 }
 @end
 
-
 @implementation ViewController
 
 - (IBAction)resetButton:(id)sender {
@@ -19,20 +18,6 @@
 - (IBAction)theButton:(id)sender {
     NSLog(@"You pressed the Button!");
 }
-- (IBAction)ObjCIncrement:(id)sender {
-    
-    [theObject setUseObjC:YES];
-    [theObject IncrementValue];
-    [_valueLabel setText:[NSString stringWithFormat:@"Obj C value: %d", [theObject val]]];
-
-}
-- (IBAction)CPlusPlusIncrement:(id)sender {
-    [theObject setUseObjC:NO];
-    [theObject IncrementValue];
-    [_valueLabel setText:[NSString stringWithFormat:@"C++ value: %d", [theObject val]]];
-
-}
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -46,176 +31,71 @@
     
     //Handling single tap - not needed, utilized for testing
     UITapGestureRecognizer *singleFingerTap =
-    [[UITapGestureRecognizer alloc] initWithTarget:self
-                                            action:@selector(handleSingleTap:)];
+    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
     [self.view addGestureRecognizer:singleFingerTap];
     
     //Handles double tapping
     UITapGestureRecognizer *doubleFingerTap =
-    [[UITapGestureRecognizer alloc] initWithTarget:self
-                                            action:@selector(handleDoubleTap:)];
+    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
     doubleFingerTap.numberOfTapsRequired = 2;
-    
     [self.view addGestureRecognizer:doubleFingerTap];
-    
     
     //handles panning
     UIPanGestureRecognizer *panning =
-    [[UIPanGestureRecognizer alloc] initWithTarget:self
-                                            action:@selector(handlePan:)];
+    [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
     [self.view addGestureRecognizer:panning];
-    
     
     //handles two finger panning
     UIPanGestureRecognizer *twoFingerPan =
-    [[UIPanGestureRecognizer alloc] initWithTarget:self
-                                            action:@selector(handleTwoFingerPan:)];
-
+    [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerPan:)];
     twoFingerPan.minimumNumberOfTouches = 2;
     twoFingerPan.maximumNumberOfTouches = 2;
     [self.view addGestureRecognizer:twoFingerPan];
     
-    
-    
     //handles pinch gesture
     UIPinchGestureRecognizer *pinchHandler =
-    [[UIPinchGestureRecognizer alloc] initWithTarget:self
-                                                action:@selector(handlePinch:)];
-     
+    [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     [self.view addGestureRecognizer:pinchHandler];
     
-    theObject = [[MixTest alloc] init];
-    
     [glesRenderer generateMaze]; //test generate maze
-    
 }
 
-//If the cube is not rotating, the user can scale the cube
-- (void)handlePinch:(UIPinchGestureRecognizer *)recognizer
-{
-    if(glesRenderer._isRotating == 0) //not rotating
-        [glesRenderer scaleRect:(recognizer.scale)];
-    
-}
-
-
-//If the cube is not rotating, user can rotate cube by single finger dragging horizontally or vertically
-- (void)handlePan:(UIPanGestureRecognizer *)recognizer
-{
-    if(glesRenderer._isRotating == 1) //if rotating, return
-        return;
-    
-    float rotAngle = 0.15f;
-    CGPoint vel = [recognizer velocityInView:self.view];
-    
-    if( fabs( vel.x) > fabs( vel.y) ){
-        if (vel.x > 0)
-        {
-            // user dragged towards the right
-            [glesRenderer rotateRectHorizontal:(rotAngle)];
-        }
-        else{
-            // user dragged towards the left
-            [glesRenderer rotateRectHorizontal:(-rotAngle)];
-        }
-    }else{
-        if(vel.y < 0){
-            //up
-            [glesRenderer rotateRectVertical:(-rotAngle)];
-        }
-        else{
-            //down
-            [glesRenderer rotateRectVertical:(rotAngle)];
-        }
-    }
-    
-}
-
-//Two finger dragging will translate the cube
-- (void)handleTwoFingerPan:(UIPanGestureRecognizer *)recognizer
-{
-    //if rotating, return
-    //if(glesRenderer._isRotating == 1) return;
-    
-    float translationDelta = 0.1f;
-   //CGPoint currentlocation = [recognizer locationInView:self.view];
-    
-    CGPoint vel = [recognizer velocityInView:self.view];
-    
-    if( fabs( vel.x) > fabs( vel.y) ){
-        if (vel.x > 0)
-        {
-            // user dragged towards the right
-            [glesRenderer translateRect:(translationDelta) secondDelta:(0.0f)];
-        }
-        else{
-            // user dragged towards the left
-            [glesRenderer translateRect:(-translationDelta) secondDelta:(0.0f)];
-        }
-    }else{
-        if(vel.y < 0){
-            //up
-            [glesRenderer translateRect:(0.0f) secondDelta:(translationDelta)];
-            
-        }
-        else{
-            //down
-            [glesRenderer translateRect:(0.0f) secondDelta:(-translationDelta)];
-        }
-    }
-    
+//single tap testing method
+- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer {
 }
 
 //Double tap will toggle whether the cube will automatically rotate
-- (void)handleDoubleTap:(UITapGestureRecognizer *)recognizer
-{
-    if(glesRenderer._isRotating == 1){
-        glesRenderer._isRotating = 0;
-    }else{
-        glesRenderer._isRotating = 1;
-    }
+- (void)handleDoubleTap:(UITapGestureRecognizer *)recognizer {
+    [glesRenderer reset];
 }
 
-
-//single tap testing method
-- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
-{
-    //printf("testing");
+// vertical panning moves camera forwards and backwards
+// horizontal panning turns the camera left and right
+- (void)handlePan:(UIPanGestureRecognizer *)recognizer {
+    CGPoint translatedPoint = [recognizer translationInView:recognizer.view.superview];
+    [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
+    float scale = 1.0f / recognizer.view.superview.bounds.size.width; // scales panning to be independant of screen resolution
+    [glesRenderer translateRect:(translatedPoint.x * scale) secondDelta:(translatedPoint.y * scale)];
 }
 
+- (void)handleTwoFingerPan:(UIPanGestureRecognizer *)recognizer {
+}
+
+- (void)handlePinch:(UIPinchGestureRecognizer *)recognizer {
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
-- (void)update
-{
+- (void)update {
     [glesRenderer update];
-    
 }
 
-- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
-{
+- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
     [glesRenderer draw:rect];
-    
-    _positionLabel.text = [glesRenderer getPosition];   //updates position, and displays it on label
-    _rotationLabel.text = [glesRenderer getRotation];   //displays rotation every frame (to a label)
-    
+    _positionLabel.text = [glesRenderer getPosition];
+    _rotationLabel.text = [glesRenderer getRotation];
 }
-
-
 
 @end
-
-
-
-
-
-
-
-
-
-
-
-

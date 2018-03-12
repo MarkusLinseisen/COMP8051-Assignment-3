@@ -9,19 +9,13 @@
 
 #import <UIKit/UIKit.h>
 #import "Renderer.h" // ###
-#import "MixTest.h"
 
 //@interface ViewController : UIViewController
-@interface ViewController : GLKViewController // ###
-{
-    MixTest *theObject;
+@interface ViewController : GLKViewController { // ###
 }
-
 
 @property (weak, nonatomic) IBOutlet UILabel *positionLabel;
 @property (weak, nonatomic) IBOutlet UILabel *rotationLabel;
 @property (weak, nonatomic) IBOutlet UILabel *valueLabel;
 
-
 @end
-
