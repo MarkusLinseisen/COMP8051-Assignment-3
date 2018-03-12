@@ -52,6 +52,8 @@ static bool mazeArray[10][10] = {
     
     GLuint programObject;
     
+    std::chrono::time_point<std::chrono::steady_clock> lastTime;
+    
     GLuint crateTexture;
     GLuint floorTexture;
     GLuint wallLeftTexture;
@@ -63,9 +65,13 @@ static bool mazeArray[10][10] = {
 
     float cameraX, cameraZ; // camera location
     float cameraRot; // camera rotation about y
+    float cubeRot;
 
-    float *vertices, *normals, *texCoords;
-    int *indices, numIndices;
+    float *quadVertices, *quadTexCoords;
+    int *quadIndices, quadNumIndices;
+    
+    float *cubeVertices, *cubeTexCoords;
+    int *cubeIndices, cubeNumIndices;
 }
 
 @end
@@ -81,7 +87,8 @@ static bool mazeArray[10][10] = {
 }
 
 - (void)loadModels {
-    numIndices = glesRenderer.GenQuad(1.0f, &vertices, &normals, &texCoords, &indices);
+    cubeNumIndices = glesRenderer.GenCube(0.5f, &cubeVertices, NULL, &cubeTexCoords, &cubeIndices);
+    quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, NULL, &quadTexCoords, &quadIndices);
 }
 
 - (void)setup:(GLKView *)view {
@@ -118,9 +125,16 @@ static bool mazeArray[10][10] = {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    
+    std::chrono::time_point<std::chrono::steady_clock> lastTime;
 }
 
 - (void)update {
+    auto currentTime = std::chrono::steady_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
+    lastTime = currentTime;
+    cubeRot += 0.001f * elapsedTime;
+    
     v = GLKMatrix4MakeYRotation(cameraRot);
     v = GLKMatrix4Translate(v, -cameraX, 0, -cameraZ);
     
@@ -170,11 +184,20 @@ static bool mazeArray[10][10] = {
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glUseProgram ( programObject );
     
-    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), vertices );
     glEnableVertexAttribArray ( 0 );
-    glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
     glEnableVertexAttribArray ( 1 );
     
+    // draw cube
+    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), cubeVertices );
+    glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), cubeTexCoords );
+    glBindTexture(GL_TEXTURE_2D, crateTexture);
+    m = GLKMatrix4MakeTranslation(4, 0, 0);
+    m = GLKMatrix4Rotate(m, cubeRot, 1.0, 1.0, 1.0);
+    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+    glDrawElements ( GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices );
+    
+    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), quadVertices );
+    glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), quadTexCoords );
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
             if (!mazeArray[j][i]) {
@@ -184,7 +207,7 @@ static bool mazeArray[10][10] = {
                 m = GLKMatrix4RotateX(m, M_PI / -2.0);
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                 
                 // draw north wall
                 if (j + 1 < 10 && mazeArray[j + 1][i]) {
@@ -201,7 +224,7 @@ static bool mazeArray[10][10] = {
                         glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
                     }
                     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                    glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                 }
                 
                 // draw east wall
@@ -220,7 +243,7 @@ static bool mazeArray[10][10] = {
                         glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
                     }
                     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                    glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                 }
                 
                 // draw south wall
@@ -239,7 +262,7 @@ static bool mazeArray[10][10] = {
                         glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
                     }
                     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                    glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                 }
                 
                 // draw west wall
@@ -258,7 +281,7 @@ static bool mazeArray[10][10] = {
                         glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
                     }
                     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                    glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                 }
 
             }
