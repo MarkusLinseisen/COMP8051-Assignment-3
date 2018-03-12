@@ -95,6 +95,8 @@ enum {
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace( GL_BACK );
 }
 
 - (void)update {
@@ -115,8 +117,8 @@ enum {
 
 //resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
 - (void)reset {
-    cameraX = 0.0f;
-    cameraZ = 5.0f;
+    cameraX = 4.0f;
+    cameraZ = 4.0f;
     cameraRot = 0.0f;
 }
 
@@ -161,7 +163,7 @@ enum {
     
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            if (mazeArray[i][j]) {
+            if (mazeArray[j][i]) {
                 m = GLKMatrix4MakeTranslation(i, 0, -j);
                     glBindTexture(GL_TEXTURE_2D, wallBothTexture);
             } else {
