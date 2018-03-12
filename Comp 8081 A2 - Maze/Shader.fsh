@@ -4,26 +4,35 @@ precision highp float;
 in vec4 v_color;
 in vec3 v_normal;
 in vec2 v_texcoord;
+in vec3 v_position;
 out vec4 o_fragColor;
 
 uniform sampler2D texSampler;
 
-uniform mat3 normalMatrix;
-uniform bool passThrough;
-uniform bool shadeInFrag;
+uniform mat4 modelViewMatrix;
+uniform bool spotlight;
+uniform float spotlightCutoff;
+uniform vec4 spotlightColor;
+uniform vec4 skyColor;
+uniform bool fog;
+uniform float fogEnd;
 
-void main()
-{
-    if (!passThrough && shadeInFrag) {
-        vec3 eyeNormal = normalize(normalMatrix * v_normal);
-        vec3 lightPosition = vec3(0.0, 0.0, 1.0);
-        vec4 diffuseColor = vec4(0.0, 1.0, 0.0, 1.0);
-        
-        float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));
-        
-        o_fragColor = diffuseColor * nDotVP * texture(texSampler, v_texcoord);
-    } else {
-        o_fragColor = v_color;
+void main() {
+    vec4 linearColor = skyColor;
+    
+    if (spotlight) {
+        float spotlightValue = dot(normalize(v_position), vec3(0.0, 0.0, -1.0));
+        if (spotlightValue > spotlightCutoff) {
+            linearColor += spotlightColor;
+        }
     }
+    
+    linearColor *= v_color * texture(texSampler, v_texcoord);
+    
+    if (fog) {
+        float fogMix = min(1.0, length(v_position) / fogEnd);
+        linearColor = mix(linearColor, skyColor, fogMix);
+    }
+    
+    o_fragColor = linearColor;
 }
-

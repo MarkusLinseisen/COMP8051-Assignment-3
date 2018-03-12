@@ -13,9 +13,6 @@
 - (void)setup:(GLKView *)view;
 - (void)loadModels;
 - (void)update;
-- (void)rotateRectHorizontal:(float) angle; 
-- (void)rotateRectVertical:(float) angle;
-- (void)scaleRect:(float) scale;
 - (void)translateRect:(float)xDelta secondDelta:(float)zDelta;
 - (void)reset;
 - (NSString*)getPosition;

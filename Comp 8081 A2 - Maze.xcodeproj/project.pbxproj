@@ -13,10 +13,8 @@
 		8C67A0E320507C4E002C8D8E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C67A0E220507C4E002C8D8E /* AppDelegate.m */; };
 		8C67A0EC20507C61002C8D8E /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 8C67A0E420507C60002C8D8E /* Shader.vsh */; };
 		8C67A0ED20507C61002C8D8E /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 8C67A0E520507C60002C8D8E /* Shader.fsh */; };
-		8C67A0EE20507C61002C8D8E /* MixTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C67A0E820507C61002C8D8E /* MixTest.mm */; };
 		8C67A0EF20507C61002C8D8E /* Renderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C67A0E920507C61002C8D8E /* Renderer.mm */; };
 		8C67A0F020507C61002C8D8E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C67A0EB20507C61002C8D8E /* ViewController.m */; };
-		8C67A0F520507C68002C8D8E /* CPlusPlus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C67A0F120507C68002C8D8E /* CPlusPlus.cpp */; };
 		8C67A0F620507C68002C8D8E /* GLESRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C67A0F420507C68002C8D8E /* GLESRenderer.cpp */; };
 		8C67A0F820507D06002C8D8E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C67A0F720507D06002C8D8E /* Main.storyboard */; };
 		8C67A0FA20508232002C8D8E /* crate.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8C67A0F920508232002C8D8E /* crate.jpg */; };
@@ -34,12 +32,8 @@
 		8C67A0E520507C60002C8D8E /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
 		8C67A0E620507C61002C8D8E /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		8C67A0E720507C61002C8D8E /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		8C67A0E820507C61002C8D8E /* MixTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MixTest.mm; sourceTree = "<group>"; };
 		8C67A0E920507C61002C8D8E /* Renderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Renderer.mm; sourceTree = "<group>"; };
-		8C67A0EA20507C61002C8D8E /* MixTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MixTest.h; sourceTree = "<group>"; };
 		8C67A0EB20507C61002C8D8E /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		8C67A0F120507C68002C8D8E /* CPlusPlus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CPlusPlus.cpp; sourceTree = "<group>"; };
-		8C67A0F220507C68002C8D8E /* CPlusPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPlusPlus.h; sourceTree = "<group>"; };
 		8C67A0F320507C68002C8D8E /* GLESRenderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GLESRenderer.hpp; sourceTree = "<group>"; };
 		8C67A0F420507C68002C8D8E /* GLESRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLESRenderer.cpp; sourceTree = "<group>"; };
 		8C67A0F720507D06002C8D8E /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
@@ -76,13 +70,9 @@
 		8C67A0CA20507C04002C8D8E /* Comp 8081 A2 - Maze */ = {
 			isa = PBXGroup;
 			children = (
-				8C67A0EA20507C61002C8D8E /* MixTest.h */,
-				8C67A0E820507C61002C8D8E /* MixTest.mm */,
 				8C67A0E620507C61002C8D8E /* Renderer.h */,
 				8C67A0E920507C61002C8D8E /* Renderer.mm */,
 				8C67A0F720507D06002C8D8E /* Main.storyboard */,
-				8C67A0F120507C68002C8D8E /* CPlusPlus.cpp */,
-				8C67A0F220507C68002C8D8E /* CPlusPlus.h */,
 				8C67A0F420507C68002C8D8E /* GLESRenderer.cpp */,
 				8C67A0F320507C68002C8D8E /* GLESRenderer.hpp */,
 				8C67A0E520507C60002C8D8E /* Shader.fsh */,
@@ -178,9 +168,7 @@
 				8C67A0F620507C68002C8D8E /* GLESRenderer.cpp in Sources */,
 				8C67A0DB20507C04002C8D8E /* main.m in Sources */,
 				8C67A0EF20507C61002C8D8E /* Renderer.mm in Sources */,
-				8C67A0EE20507C61002C8D8E /* MixTest.mm in Sources */,
 				8C67A0F020507C61002C8D8E /* ViewController.m in Sources */,
-				8C67A0F520507C68002C8D8E /* CPlusPlus.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
