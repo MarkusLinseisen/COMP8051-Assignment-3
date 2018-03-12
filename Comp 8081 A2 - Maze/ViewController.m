@@ -12,7 +12,7 @@
 @implementation ViewController
 
 - (IBAction)resetButton:(id)sender {
-    [glesRenderer reset];
+    glesRenderer.isDay = !glesRenderer.isDay;
 }
 
 - (IBAction)theButton:(id)sender {
