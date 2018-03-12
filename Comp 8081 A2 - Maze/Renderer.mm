@@ -55,6 +55,8 @@ enum {
 
 @synthesize _isRotating;
 @synthesize isDay;
+@synthesize spotlightToggle;
+@synthesize fogToggle;
 
 - (void)dealloc {
     glDeleteProgram(programObject);
@@ -70,6 +72,10 @@ enum {
     if (!view.context) {
         NSLog(@"Failed to create ES context");
     }
+    
+    spotlightToggle = true;
+    isDay = true;
+    fogToggle = true;
     
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     theView = view;
@@ -88,6 +94,7 @@ enum {
     
     glEnable(GL_DEPTH_TEST);
     lastTime = std::chrono::steady_clock::now();
+    
 }
 
 - (void)update {
@@ -127,10 +134,10 @@ enum {
         glClearColor(0.125, 0.125, 0.251, 1.00);
     }
     
-    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], true);
+    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
     glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], 0.9961);
     glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 1.0, 1.0, 1.0, 1.0);
-    glUniform1i(uniforms[UNIFORM_FOG], true);
+    glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
     glUniform1f(uniforms[UNIFORM_FOGEND], 10.0);
     
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);

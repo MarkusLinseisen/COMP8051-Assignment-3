@@ -32,22 +32,6 @@
                                 <color key="textColor" red="1" green="0.034920876077064067" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nzs-98-Loy">
-                                <rect key="frame" x="22" y="398" width="35" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="ObjC"/>
-                                <connections>
-                                    <action selector="ObjCIncrement:" destination="lwC-Ps-cS9" eventType="touchUpInside" id="UP7-o9-VyG"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dRa-Xa-VLH">
-                                <rect key="frame" x="266" y="398" width="30" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="C++"/>
-                                <connections>
-                                    <action selector="CPlusPlusIncrement:" destination="lwC-Ps-cS9" eventType="touchUpInside" id="MUF-t8-XIy"/>
-                                </connections>
-                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oWA-5Y-uYk">
                                 <rect key="frame" x="45" y="78" width="222" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -63,6 +47,22 @@
                                 </state>
                                 <connections>
                                     <action selector="resetButton:" destination="lwC-Ps-cS9" eventType="touchUpInside" id="CvU-1r-UQ7"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mZG-aa-0gZ">
+                                <rect key="frame" x="9" y="398" width="61" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="spotlight"/>
+                                <connections>
+                                    <action selector="spotlightBtn:" destination="lwC-Ps-cS9" eventType="touchUpInside" id="CU6-Oy-7X3"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kQ8-K9-ZGi">
+                                <rect key="frame" x="266" y="398" width="30" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Fog"/>
+                                <connections>
+                                    <action selector="fogBtn:" destination="lwC-Ps-cS9" eventType="touchUpInside" id="7JS-1j-qGl"/>
                                 </connections>
                             </button>
                         </subviews>
