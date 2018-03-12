@@ -13,10 +13,9 @@
 
 // Uniform index.
 enum {
-    UNIFORM_MODELVIEWPROJECTION_MATRIX,
-    UNIFORM_NORMAL_MATRIX,
-    UNIFORM_PASSTHROUGH,
-    UNIFORM_SHADEINFRAG,
+    UNIFORM_MODELVIEW_MATRIX,
+    UNIFORM_PROJECTION_MATRIX,
+    UNIFORM_SPOTLIGHT,
     UNIFORM_TEXTURE,
     NUM_UNIFORMS
 };
@@ -37,7 +36,6 @@ enum {
     std::chrono::time_point<std::chrono::steady_clock> lastTime;
     
     GLKMatrix4 m, v, p;
-    GLKMatrix3 normalMatrix;
 
     float cameraX, cameraZ; // camera location
     float cameraRot; // camera rotation about y
@@ -92,18 +90,10 @@ enum {
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
     lastTime = currentTime;
 
-    // it looks like this code translates, then scales, then rotates the model,
-    // but because matrix multiplication it rotates, then scales, then translates
-    m = GLKMatrix4MakeTranslation(0, 0, 0);
-
     v = GLKMatrix4MakeYRotation(cameraRot);
     v = GLKMatrix4Translate(v, -cameraX, 0, -cameraZ);
-
-    // don't need a normal matrix if we scale x y and z uniformly
-    normalMatrix = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(GLKMatrix4Multiply(v, m)), NULL);
     
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    
     p = GLKMatrix4MakePerspective(100.0f * M_PI / 180.0f, aspect, 1.0f, 20.0f);
 }
 
@@ -122,11 +112,9 @@ enum {
 }
 
 - (void)draw:(CGRect)drawRect; {
-    GLKMatrix4 vp = GLKMatrix4Multiply(p, v);
-    
-    glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, normalMatrix.m);
-    glUniform1i(uniforms[UNIFORM_PASSTHROUGH], false);
-    glUniform1i(uniforms[UNIFORM_SHADEINFRAG], true);
+    glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
+
+    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], true);
     
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);
     
@@ -136,7 +124,7 @@ enum {
     glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), vertices );
     glEnableVertexAttribArray ( 0 );
     
-    glVertexAttrib4f ( 1, 1.0f, 0.0f, 0.0f, 1.0f );
+    glVertexAttrib4f( 1, 1.0f, 1.0f, 1.0f, 1.0f ); // color
     
     glVertexAttribPointer ( 2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), normals );
     glEnableVertexAttribArray ( 2 );
@@ -145,11 +133,11 @@ enum {
     glEnableVertexAttribArray ( 3 );
     
     m = GLKMatrix4MakeTranslation(0, 0, 0);
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(vp, m).m);
+    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
     
-    m = GLKMatrix4MakeTranslation(1, 0, 0);
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(vp, m).m);
+    m = GLKMatrix4MakeTranslation(1.0, 0.0, 0.0);
+    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
 }
 
@@ -162,10 +150,9 @@ enum {
         return false;
     
     // Set up uniform variables
-    uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX] = glGetUniformLocation(programObject, "modelViewProjectionMatrix");
-    uniforms[UNIFORM_NORMAL_MATRIX] = glGetUniformLocation(programObject, "normalMatrix");
-    uniforms[UNIFORM_PASSTHROUGH] = glGetUniformLocation(programObject, "passThrough");
-    uniforms[UNIFORM_SHADEINFRAG] = glGetUniformLocation(programObject, "shadeInFrag");
+    uniforms[UNIFORM_MODELVIEW_MATRIX] = glGetUniformLocation(programObject, "modelViewMatrix");
+    uniforms[UNIFORM_PROJECTION_MATRIX] = glGetUniformLocation(programObject, "projectionMatrix");
+    uniforms[UNIFORM_SPOTLIGHT] = glGetUniformLocation(programObject, "spotlight");
     uniforms[UNIFORM_TEXTURE] = glGetUniformLocation(programObject, "texSampler");
     
     return true;

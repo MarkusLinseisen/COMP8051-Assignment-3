@@ -4,21 +4,32 @@ precision highp float;
 in vec4 v_color;
 in vec3 v_normal;
 in vec2 v_texcoord;
+in vec3 v_position;
 out vec4 o_fragColor;
 
 uniform sampler2D texSampler;
 
-uniform mat3 normalMatrix;
-uniform bool passThrough;
-uniform bool shadeInFrag;
+uniform mat4 modelViewMatrix;
+uniform bool spotlight;
 
-void main()
-{
-    vec3 eyeNormal = normalize(normalMatrix * v_normal);
-    vec3 lightPosition = vec3(0.0, 0.0, 1.0);
-    vec4 diffuseColor = vec4(0.0, 1.0, 0.0, 1.0);
+void main() {
+    // spotlight points into the screen
+    const vec3 lightDirection = vec3(0.0, 0.0, -1.0);
+    // spotlight has a 10° FOV. 0.9962 = cos(10°/2)
+    const float spotlightCutoff = 0.9962;
+    const float attenuationCoef = 0.25;
     
-    float nDotVP = max(0.0, dot(eyeNormal, normalize(lightPosition)));
-
-    o_fragColor = diffuseColor * nDotVP * texture(texSampler, v_texcoord);
+    vec3 eyeNormal = normalize(mat3(modelViewMatrix) * v_normal);
+    float nDotVP = max(0.0, dot(eyeNormal, -lightDirection));
+    
+    if (spotlight) {
+        float spotlightValue = dot(normalize(v_position), lightDirection);
+        if (spotlightValue < spotlightCutoff) {
+            nDotVP *= 0.25;
+        }
+    }
+    
+    float attenuation = 1.0 / pow(length(v_position * attenuationCoef), 2.0);
+    
+    o_fragColor = sqrt(v_color * nDotVP * attenuation) * texture(texSampler, v_texcoord);
 }
