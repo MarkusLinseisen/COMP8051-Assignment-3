@@ -113,8 +113,8 @@ enum {
 //translates the cube on the x and y axis
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
     cameraRot += xDelta;
-    cameraZ += cos(cameraRot) * yDelta;
-    cameraX -= sin(cameraRot) * yDelta;
+    cameraZ -= cos(cameraRot) * yDelta * 4.0;
+    cameraX += sin(cameraRot) * yDelta * 4.0;
 }
 
 //resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
