@@ -21,6 +21,9 @@
 - (void)generateMaze;
 
 @property int _isRotating;
+@property bool isDay;
+@property bool spotlightToggle;
+@property bool fogToggle;
 
 @end
 

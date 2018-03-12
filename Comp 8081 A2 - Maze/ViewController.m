@@ -12,12 +12,18 @@
 @implementation ViewController
 
 - (IBAction)resetButton:(id)sender {
-    [glesRenderer reset];
+    glesRenderer.isDay = !glesRenderer.isDay;
 }
 
-- (IBAction)theButton:(id)sender {
-    NSLog(@"You pressed the Button!");
+
+- (IBAction)spotlightBtn:(id)sender {
+    glesRenderer.spotlightToggle = !glesRenderer.spotlightToggle;
 }
+
+- (IBAction)fogBtn:(id)sender {
+    glesRenderer.fogToggle = !glesRenderer.fogToggle;
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
