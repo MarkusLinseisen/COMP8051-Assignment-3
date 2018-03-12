@@ -118,6 +118,14 @@ enum {
 
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
     cameraRot -= xDelta;
+    
+    if (cameraRot > 2 * M_PI) {
+        cameraRot -= 2 * M_PI;
+    }
+    if (cameraRot < 0.0) {
+        cameraRot += 2 * M_PI;
+    }
+    
     cameraZ -= cos(cameraRot) * yDelta * 4.0;
     cameraX += sin(cameraRot) * yDelta * 4.0;
 }
@@ -265,7 +273,16 @@ enum {
     for(int r=0;r<10;r++){
         for(int c=0;c<10;c++){
             if (r == floorf(-cameraZ + 0.5) && c == floorf(cameraX + 0.5)) {
-                [goat appendFormat:@"%@", @"p^"];
+                float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
+                if (rotDegrees > 315 || rotDegrees <= 45) {
+                    [goat appendFormat:@"%@", @"@↓"];
+                } else if (rotDegrees > 45 && rotDegrees <= 135) {
+                    [goat appendFormat:@"%@", @"@→"];
+                } else if (rotDegrees > 135 && rotDegrees <= 225) {
+                    [goat appendFormat:@"%@", @"@↑"];
+                } else {
+                    [goat appendFormat:@"%@", @"@←"];
+                }
             } else {
                 if(mazeArray[r][c]){
                     [goat appendFormat:@"%@", @"██"];
