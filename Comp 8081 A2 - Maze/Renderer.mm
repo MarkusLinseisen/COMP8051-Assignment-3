@@ -345,12 +345,12 @@ static bool mazeArray[10][10] = {
 
 //returns camera position
 - (NSString*)getPosition {
-    return [NSString stringWithFormat:@"Position: %.01f,0.0,%.01f", cameraX,cameraZ];
+    return [NSString stringWithFormat:@"ポジション: %.01f,0.0,%.01f", cameraX,cameraZ];
 }
 
 //returns camera rotation
 - (NSString*)getRotation {
-    return [NSString stringWithFormat:@"Rotation: %.01f", cameraRot * 180 / M_PI];
+    return [NSString stringWithFormat:@"回転: %.01f", cameraRot * 180 / M_PI];
 }
 
 - (NSString*)getMinimap {
