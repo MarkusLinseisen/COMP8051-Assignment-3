@@ -61,7 +61,7 @@ enum {
 }
 
 - (void)loadModels {
-    numIndices = glesRenderer.GenQuad(1.0f, &vertices, &normals, &texCoords, &indices);
+    numIndices = glesRenderer.GenCube(1.0f, &vertices, &normals, &texCoords, &indices);
 }
 
 - (void)setup:(GLKView *)view {
@@ -104,7 +104,7 @@ enum {
 
 //translates the cube on the x and y axis
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
-    cameraRot += xDelta;
+    cameraRot -= xDelta;
     cameraZ -= cos(cameraRot) * yDelta * 4.0;
     cameraX += sin(cameraRot) * yDelta * 4.0;
 }
@@ -142,13 +142,30 @@ enum {
     glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
     glEnableVertexAttribArray ( 1 );
     
-    m = GLKMatrix4MakeTranslation(0, 0, 0);
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+    static bool mazeArray[10][10] = {
+        {true, true, true, true, false, true, true, true, true, true},
+        {true, false, false, true, false, false, false, true, false, true},
+        {true, true, false, false, false, true, true, true, false, true},
+        {true, true, true, true, false, false, false, false, false, true},
+        {true, false, false, false, false, true, true, false, true, true},
+        {true, false, true, true, true, true, true, false, true, true},
+        {true, false, true, true, true, false, true, false, true, true},
+        {true, false, true, true, true, false, true, false, true, true},
+        {true, false, false, false, false, false, true, false, true, true},
+        {true, true, true, true, true, true, true, false, true, true},
+    };
     
-    m = GLKMatrix4MakeTranslation(1.0, 0.0, 0.0);
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            if (mazeArray[i][j]) {
+                m = GLKMatrix4MakeTranslation(i, 0, -j);
+            } else {
+                m = GLKMatrix4MakeTranslation(i, -1, -j);
+            }
+            glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+            glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+        }
+    }
 }
 
 - (bool)setupShaders {
