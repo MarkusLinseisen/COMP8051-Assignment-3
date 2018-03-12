@@ -38,7 +38,6 @@ enum {
     GLESRenderer glesRenderer;
     GLuint programObject;
     GLuint crateTexture;
-    std::chrono::time_point<std::chrono::steady_clock> lastTime;
     
     GLKMatrix4 m, v, p;
 
@@ -53,7 +52,6 @@ enum {
 
 @implementation Renderer
 
-@synthesize _isRotating;
 @synthesize isDay;
 @synthesize spotlightToggle;
 @synthesize fogToggle;
@@ -93,21 +91,15 @@ enum {
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     
     glEnable(GL_DEPTH_TEST);
-    lastTime = std::chrono::steady_clock::now();
-    
 }
 
 - (void)update {
-    auto currentTime = std::chrono::steady_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
-    lastTime = currentTime;
-
     v = GLKMatrix4MakeYRotation(cameraRot);
     v = GLKMatrix4Translate(v, -cameraX, 0, -cameraZ);
     
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV) / (aspect * aspect), aspect, 1.0f, 20.0f);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV) / (aspect * aspect), aspect, 0.1f, 10.0f);
 }
 
 //translates the cube on the x and y axis
@@ -126,10 +118,10 @@ enum {
 
 - (void)draw:(CGRect)drawRect; {
     glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
-    if(isDay){
+    if(isDay) {
         glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.784, 0.706, 0.627, 1.00);
         glClearColor(0.784, 0.706, 0.627, 1.00);
-    }else{
+    } else {
         glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.125, 0.125, 0.251, 1.00);
         glClearColor(0.125, 0.125, 0.251, 1.00);
     }
@@ -147,14 +139,8 @@ enum {
     
     glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), vertices );
     glEnableVertexAttribArray ( 0 );
-    
-    glVertexAttrib4f( 1, 1.0f, 1.0f, 1.0f, 1.0f ); // color
-    
-    glVertexAttribPointer ( 2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), normals );
-    glEnableVertexAttribArray ( 2 );
-    
-    glVertexAttribPointer ( 3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
-    glEnableVertexAttribArray ( 3 );
+    glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
+    glEnableVertexAttribArray ( 1 );
     
     m = GLKMatrix4MakeTranslation(0, 0, 0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);

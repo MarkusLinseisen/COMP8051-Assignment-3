@@ -1,8 +1,6 @@
 #version 300 es
 
 precision highp float;
-in vec4 v_color;
-in vec3 v_normal;
 in vec2 v_texcoord;
 in vec3 v_position;
 out vec4 o_fragColor;
@@ -27,7 +25,7 @@ void main() {
         }
     }
     
-    linearColor *= v_color * texture(texSampler, v_texcoord);
+    linearColor *= texture(texSampler, v_texcoord);
     
     if (fog) {
         float fogMix = min(1.0, length(v_position) / fogEnd);
