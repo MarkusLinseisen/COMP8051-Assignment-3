@@ -19,7 +19,6 @@
 - (NSString*)getRotation;
 - (NSString*)getMinimap;
 - (void)draw:(CGRect)drawRect;
-- (void)generateMaze;
 
 @property int _isRotating;
 @property bool isDay;

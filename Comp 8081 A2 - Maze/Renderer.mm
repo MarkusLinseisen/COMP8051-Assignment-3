@@ -33,6 +33,19 @@ enum {
     NUM_ATTRIBUTES
 };
 
+static bool mazeArray[10][10] = {
+    {true, true, true, true, false, true, true, true, true, true},
+    {true, false, false, true, false, false, false, true, false, true},
+    {true, true, false, false, false, true, true, true, false, true},
+    {true, true, true, true, false, false, false, false, false, true},
+    {true, false, false, false, false, true, true, false, true, true},
+    {true, false, true, true, true, true, true, false, true, true},
+    {true, false, true, true, true, false, true, false, true, true},
+    {true, false, true, true, true, false, true, false, true, true},
+    {true, false, false, false, false, false, true, false, true, true},
+    {true, true, true, true, true, true, true, false, true, true},
+};
+
 @interface Renderer () {
     GLKView *theView;
     GLESRenderer glesRenderer;
@@ -68,7 +81,7 @@ enum {
 }
 
 - (void)loadModels {
-    numIndices = glesRenderer.GenCube(1.0f, &vertices, &normals, &texCoords, &indices);
+    numIndices = glesRenderer.GenQuad(1.0f, &vertices, &normals, &texCoords, &indices);
 }
 
 - (void)setup:(GLKView *)view {
@@ -140,7 +153,7 @@ enum {
     glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
     if(isDay) {
         glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.784, 0.706, 0.627, 1.00);
-        glClearColor(0.784, 0.706, 0.627, 1.00);
+        glClearColor(1.000, 0.671, 0.921, 1.00);
     } else {
         glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.125, 0.125, 0.251, 1.00);
         glClearColor(0.125, 0.125, 0.251, 1.00);
@@ -162,30 +175,93 @@ enum {
     glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
     glEnableVertexAttribArray ( 1 );
     
-    static bool mazeArray[10][10] = {
-        {true, true, true, true, false, true, true, true, true, true},
-        {true, false, false, true, false, false, false, true, false, true},
-        {true, true, false, false, false, true, true, true, false, true},
-        {true, true, true, true, false, false, false, false, false, true},
-        {true, false, false, false, false, true, true, false, true, true},
-        {true, false, true, true, true, true, true, false, true, true},
-        {true, false, true, true, true, false, true, false, true, true},
-        {true, false, true, true, true, false, true, false, true, true},
-        {true, false, false, false, false, false, true, false, true, true},
-        {true, true, true, true, true, true, true, false, true, true},
-    };
-    
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            if (mazeArray[j][i]) {
-                m = GLKMatrix4MakeTranslation(i, 0, -j);
-                    glBindTexture(GL_TEXTURE_2D, wallBothTexture);
-            } else {
+            if (!mazeArray[j][i]) {
+                
+                // draw floor
                 m = GLKMatrix4MakeTranslation(i, -1, -j);
-                    glBindTexture(GL_TEXTURE_2D, floorTexture);
+                m = GLKMatrix4RotateX(m, M_PI / -2.0);
+                glBindTexture(GL_TEXTURE_2D, floorTexture);
+                glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+                glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                
+                // draw north wall
+                if (j + 1 < 10 && mazeArray[j + 1][i]) {
+                    m = GLKMatrix4MakeTranslation(i, 0, -j - 1);
+                    if (i + 1 < 10 && mazeArray[j + 1][i + 1]) {
+                        if (i - 1 >= 0 && mazeArray[j + 1][i - 1]) {
+                            glBindTexture(GL_TEXTURE_2D, wallBothTexture);
+                        } else {
+                            glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
+                        }
+                    } else if (i - 1 >= 0 && mazeArray[j + 1][i - 1]) {
+                        glBindTexture(GL_TEXTURE_2D, wallRightTexture);
+                    } else {
+                        glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
+                    }
+                    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+                    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                }
+                
+                // draw east wall
+                if (i + 1 < 10 && mazeArray[j][i+1]) {
+                    m = GLKMatrix4MakeTranslation(i+1, 0, -j);
+                    m = GLKMatrix4RotateY(m, M_PI / -2.0);
+                    if (j + 1 < 10 && mazeArray[j + 1][i + 1]) {
+                        if (j - 1 >= 0 && mazeArray[j - 1][i + 1]) {
+                            glBindTexture(GL_TEXTURE_2D, wallBothTexture);
+                        } else {
+                            glBindTexture(GL_TEXTURE_2D, wallRightTexture);
+                        }
+                    } else if (j - 1 >= 0 && mazeArray[j - 1][i + 1]) {
+                        glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
+                    } else {
+                        glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
+                    }
+                    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+                    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                }
+                
+                // draw south wall
+                if (j - 1 >= 0 && mazeArray[j - 1][i]) {
+                    m = GLKMatrix4MakeTranslation(i, 0, -j + 1);
+                    m = GLKMatrix4RotateY(m, -M_PI);
+                    if (i + 1 < 10 && mazeArray[j - 1][i + 1]) {
+                        if (i - 1 >= 0 && mazeArray[j - 1][i - 1]) {
+                            glBindTexture(GL_TEXTURE_2D, wallBothTexture);
+                        } else {
+                            glBindTexture(GL_TEXTURE_2D, wallRightTexture);
+                        }
+                    } else if (i - 1 >= 0 && mazeArray[j - 1][i - 1]) {
+                        glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
+                    } else {
+                        glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
+                    }
+                    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+                    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                }
+                
+                // draw west wall
+                if (i - 1 >= 0 && mazeArray[j][i - 1]) {
+                    m = GLKMatrix4MakeTranslation(i - 1, 0, -j);
+                    m = GLKMatrix4RotateY(m, M_PI / 2.0);
+                    if (j + 1 < 10 && mazeArray[j + 1][i - 1]) {
+                        if (j - 1 >= 0 && mazeArray[j - 1][i - 1]) {
+                            glBindTexture(GL_TEXTURE_2D, wallBothTexture);
+                        } else {
+                            glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
+                        }
+                    } else if (j - 1 >= 0 && mazeArray[j - 1][i - 1]) {
+                        glBindTexture(GL_TEXTURE_2D, wallRightTexture);
+                    } else {
+                        glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
+                    }
+                    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+                    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+                }
+
             }
-            glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-            glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
         }
     }
 }
@@ -238,7 +314,7 @@ enum {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spriteData);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(width), GLsizei(height), 0, GL_RGBA, GL_UNSIGNED_BYTE, spriteData);
     
     free(spriteData);
     return texName;
@@ -255,19 +331,6 @@ enum {
 }
 
 - (NSString*)getMinimap {
-    static bool mazeArray[10][10] = {
-        {true, true, true, true, false, true, true, true, true, true},
-        {true, false, false, true, false, false, false, true, false, true},
-        {true, true, false, false, false, true, true, true, false, true},
-        {true, true, true, true, false, false, false, false, false, true},
-        {true, false, false, false, false, true, true, false, true, true},
-        {true, false, true, true, true, true, true, false, true, true},
-        {true, false, true, true, true, false, true, false, true, true},
-        {true, false, true, true, true, false, true, false, true, true},
-        {true, false, false, false, false, false, true, false, true, true},
-        {true, true, true, true, true, true, true, false, true, true},
-    };
-    
     NSMutableString *goat = [NSMutableString string];
     
     for(int r=0;r<10;r++){
@@ -295,33 +358,6 @@ enum {
     }
     
     return goat;
-}
-
-//generate maze
--(void) generateMaze {
-    static bool mazeArray[10][10] = {
-        {true, true, true, true, false, true, true, true, true, true},
-        {true, false, false, true, false, false, false, true, false, true},
-        {true, true, false, false, false, true, true, true, false, true},
-        {true, true, true, true, false, false, false, false, false, true},
-        {true, false, false, false, false, true, true, false, true, true},
-        {true, false, true, true, true, true, true, false, true, true},
-        {true, false, true, true, true, false, true, false, true, true},
-        {true, false, true, true, true, false, true, false, true, true},
-        {true, false, false, false, false, false, true, false, true, true},
-        {true, true, true, true, true, true, true, false, true, true},
-    };
-    
-    for(int r=0;r<10;r++){
-        for(int c=0;c<10;c++){
-            if(mazeArray[r][c]){
-                printf("*"); //wall
-            }else{
-                printf(" "); //path
-            }
-        }
-        printf("\n");
-    }
 }
 
 @end
