@@ -18,6 +18,8 @@ void main() {
     // spotlight has a 10° FOV. 0.9962 = cos(10°/2)
     const float spotlightCutoff = 0.9962;
     const float attenuationCoef = 0.25;
+    const vec4 fogColor = vec4(0.5, 0.5, 0.5, 1.0);
+    const float fogEnd = 20.0;
     
     vec3 eyeNormal = normalize(mat3(modelViewMatrix) * v_normal);
     float nDotVP = max(0.0, dot(eyeNormal, -lightDirection));
@@ -30,6 +32,7 @@ void main() {
     }
     
     float attenuation = 1.0 / pow(length(v_position * attenuationCoef), 2.0);
-    
-    o_fragColor = sqrt(v_color * nDotVP * attenuation) * texture(texSampler, v_texcoord);
+    vec4 linearColor = v_color * nDotVP * attenuation * texture(texSampler, v_texcoord);
+    float fogMix = min(1.0, length(v_position) / fogEnd);
+    o_fragColor = mix(linearColor, fogColor, fogMix);
 }

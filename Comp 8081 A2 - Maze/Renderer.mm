@@ -93,8 +93,9 @@ enum {
     v = GLKMatrix4MakeYRotation(cameraRot);
     v = GLKMatrix4Translate(v, -cameraX, 0, -cameraZ);
     
+    float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(100.0f * M_PI / 180.0f, aspect, 1.0f, 20.0f);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV) / (aspect * aspect), aspect, 1.0f, 20.0f);
 }
 
 //translates the cube on the x and y axis
