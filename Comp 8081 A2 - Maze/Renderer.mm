@@ -136,7 +136,7 @@ enum {
     
     glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
     glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], 0.9961);
-    glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 1.0, 1.0, 1.0, 1.0);
+    glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
     glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
     glUniform1f(uniforms[UNIFORM_FOGEND], 10.0);
     
@@ -210,7 +210,8 @@ enum {
     glGenTextures(1, &texName);
     glBindTexture(GL_TEXTURE_2D, texName);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spriteData);
     
