@@ -36,10 +36,15 @@ enum {
 @interface Renderer () {
     GLKView *theView;
     GLESRenderer glesRenderer;
+    
     GLuint programObject;
+    
     GLuint crateTexture;
     GLuint floorTexture;
+    GLuint wallLeftTexture;
+    GLuint wallRightTexture;
     GLuint wallBothTexture;
+    GLuint wallNeitherTexture;
     
     GLKMatrix4 m, v, p;
 
@@ -89,14 +94,17 @@ enum {
     
     crateTexture = [self setupTexture:@"crate.jpg"];
     floorTexture = [self setupTexture:@"floor.png"];
+    wallLeftTexture = [self setupTexture:@"wall_left.png"];
+    wallRightTexture = [self setupTexture:@"wall_right.png"];
     wallBothTexture = [self setupTexture:@"wall_both.png"];
+    wallNeitherTexture = [self setupTexture:@"wall_neither.png"];
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, floorTexture);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glCullFace( GL_BACK );
+    glCullFace(GL_BACK);
 }
 
 - (void)update {
@@ -108,14 +116,12 @@ enum {
     p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, 10.0f);
 }
 
-//translates the cube on the x and y axis
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
     cameraRot -= xDelta;
     cameraZ -= cos(cameraRot) * yDelta * 4.0;
     cameraX += sin(cameraRot) * yDelta * 4.0;
 }
 
-//resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
 - (void)reset {
     cameraX = 4.0f;
     cameraZ = 4.0f;
@@ -238,6 +244,40 @@ enum {
 //returns camera rotation
 - (NSString*)getRotation {
     return [NSString stringWithFormat:@"Rotation: %.01f", cameraRot * 180 / M_PI];
+}
+
+- (NSString*)getMinimap {
+    static bool mazeArray[10][10] = {
+        {true, true, true, true, false, true, true, true, true, true},
+        {true, false, false, true, false, false, false, true, false, true},
+        {true, true, false, false, false, true, true, true, false, true},
+        {true, true, true, true, false, false, false, false, false, true},
+        {true, false, false, false, false, true, true, false, true, true},
+        {true, false, true, true, true, true, true, false, true, true},
+        {true, false, true, true, true, false, true, false, true, true},
+        {true, false, true, true, true, false, true, false, true, true},
+        {true, false, false, false, false, false, true, false, true, true},
+        {true, true, true, true, true, true, true, false, true, true},
+    };
+    
+    NSMutableString *goat = [NSMutableString string];
+    
+    for(int r=0;r<10;r++){
+        for(int c=0;c<10;c++){
+            if (r == floorf(-cameraZ + 0.5) && c == floorf(cameraX + 0.5)) {
+                [goat appendFormat:@"%@", @"p^"];
+            } else {
+                if(mazeArray[r][c]){
+                    [goat appendFormat:@"%@", @"██"];
+                }else{
+                    [goat appendFormat:@"%@", @"  "];
+                }
+            }
+        }
+        [goat appendFormat:@"%@", @"\n"];
+    }
+    
+    return goat;
 }
 
 //generate maze

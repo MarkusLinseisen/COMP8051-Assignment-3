@@ -102,6 +102,7 @@
     [glesRenderer draw:rect];
     _positionLabel.text = [glesRenderer getPosition];
     _rotationLabel.text = [glesRenderer getRotation];
+    _minimapLabel.text = [glesRenderer getMinimap];
 }
 
 @end

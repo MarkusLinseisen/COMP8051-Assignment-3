@@ -17,6 +17,7 @@
 - (void)reset;
 - (NSString*)getPosition;
 - (NSString*)getRotation;
+- (NSString*)getMinimap;
 - (void)draw:(CGRect)drawRect;
 - (void)generateMaze;
 

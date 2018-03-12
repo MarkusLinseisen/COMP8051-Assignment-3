@@ -74,6 +74,13 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="highlightedColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Minimap" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tzg-mo-0Qm">
+                                <rect key="frame" x="361" y="0.0" width="200" height="200"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="15"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="highlightedColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="JfT-cq-Dqi"/>
                         <connections>
@@ -81,6 +88,7 @@
                         </connections>
                     </glkView>
                     <connections>
+                        <outlet property="minimapLabel" destination="Tzg-mo-0Qm" id="3WX-pq-uTR"/>
                         <outlet property="positionLabel" destination="cXh-rH-oG5" id="8IQ-4X-Gpc"/>
                         <outlet property="rotationLabel" destination="hTm-AJ-WMq" id="4VB-MO-1NA"/>
                     </connections>
