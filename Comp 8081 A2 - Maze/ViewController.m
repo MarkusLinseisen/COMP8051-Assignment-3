@@ -35,44 +35,36 @@
     [glesRenderer loadModels];
     // ### >>>
     
-    //Handling single tap - not needed, utilized for testing
-    UITapGestureRecognizer *singleFingerTap =
-    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
-    [self.view addGestureRecognizer:singleFingerTap];
-    
-    //Handles double tapping
-    UITapGestureRecognizer *doubleFingerTap =
+    // single finger double tap
+    UITapGestureRecognizer *doubleTap =
     [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
-    doubleFingerTap.numberOfTapsRequired = 2;
-    [self.view addGestureRecognizer:doubleFingerTap];
+    doubleTap.numberOfTapsRequired = 2;
+    [doubleTap setNumberOfTouchesRequired:1];
+    [self.view addGestureRecognizer:doubleTap];
     
-    //handles panning
+    // double finger double tap
+    UITapGestureRecognizer *doubleDoubleTap =
+    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleDoubleTap:)];
+    doubleDoubleTap.numberOfTapsRequired = 2;
+    [doubleDoubleTap setNumberOfTouchesRequired:2];
+    [self.view addGestureRecognizer:doubleDoubleTap];
+    
+    // panning
     UIPanGestureRecognizer *panning =
     [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
     [self.view addGestureRecognizer:panning];
     
-    //handles two finger panning
-    UIPanGestureRecognizer *twoFingerPan =
-    [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleTwoFingerPan:)];
-    twoFingerPan.minimumNumberOfTouches = 2;
-    twoFingerPan.maximumNumberOfTouches = 2;
-    [self.view addGestureRecognizer:twoFingerPan];
-    
-    //handles pinch gesture
-    UIPinchGestureRecognizer *pinchHandler =
-    [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
-    [self.view addGestureRecognizer:pinchHandler];
-    
-    [glesRenderer generateMaze]; //test generate maze
+    _minimapLabel.hidden = true;
 }
 
-//single tap testing method
-- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer {
-}
-
-//Double tap will toggle whether the cube will automatically rotate
+// resets position
 - (void)handleDoubleTap:(UITapGestureRecognizer *)recognizer {
     [glesRenderer reset];
+}
+
+// toggles minimap
+- (void)handleDoubleDoubleTap:(UITapGestureRecognizer *)recognizer {
+    _minimapLabel.hidden = !_minimapLabel.isHidden;
 }
 
 // vertical panning moves camera forwards and backwards
@@ -82,12 +74,6 @@
     [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
     float scale = 1.0f / recognizer.view.superview.bounds.size.width; // scales panning to be independant of screen resolution
     [glesRenderer translateRect:(translatedPoint.x * scale) secondDelta:(translatedPoint.y * scale)];
-}
-
-- (void)handleTwoFingerPan:(UIPanGestureRecognizer *)recognizer {
-}
-
-- (void)handlePinch:(UIPinchGestureRecognizer *)recognizer {
 }
 
 - (void)didReceiveMemoryWarning {
