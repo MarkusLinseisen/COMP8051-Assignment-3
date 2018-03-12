@@ -230,7 +230,7 @@ enum {
 
 //returns camera position
 - (NSString*)getPosition {
-    return [NSString stringWithFormat:@"Position: %.01f,0.00,%.01f", cameraX,cameraZ];
+    return [NSString stringWithFormat:@"Position: %.01f,0.0,%.01f", cameraX,cameraZ];
 }
 
 //returns camera rotation
