@@ -103,7 +103,7 @@ enum {
     
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV) / aspect, aspect, 0.1f, 10.0f);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, 10.0f);
 }
 
 //translates the cube on the x and y axis
@@ -131,7 +131,7 @@ enum {
     }
     
     glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
-    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], 0.9961);
+    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], 0.9659); // cos(30deg / 2)
     glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
     glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
     glUniform1f(uniforms[UNIFORM_FOGEND], 10.0);
