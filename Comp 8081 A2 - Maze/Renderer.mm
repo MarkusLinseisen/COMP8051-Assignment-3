@@ -121,11 +121,15 @@ static int mazeSize = 11;
     wallRightTexture = [self setupTexture:@"wall_right.png"];
     wallBothTexture = [self setupTexture:@"wall_both.png"];
     wallNeitherTexture = [self setupTexture:@"wall_neither.png"];
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, floorTexture);
+    
+    glUseProgram (programObject);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
+    glUniform1f(uniforms[UNIFORM_FOGEND], 10.0);
+    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], cosf(M_PI/12)); // cos(30deg / 2)
+    glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
     
     glEnable(GL_DEPTH_TEST);
+    
     /*
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -170,7 +174,9 @@ static int mazeSize = 11;
 
 - (void)draw:(CGRect)drawRect; {
     glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
-    if(isDay) {
+    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
+    glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
+    if (isDay) {
         glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.784, 0.706, 0.627, 1.00);
         glClearColor(1.000, 0.671, 0.921, 1.00);
     } else {
@@ -178,31 +184,23 @@ static int mazeSize = 11;
         glClearColor(0.125, 0.125, 0.251, 1.00);
     }
     
-    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
-    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], 0.9659); // cos(30deg / 2)
-    glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
-    glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
-    glUniform1f(uniforms[UNIFORM_FOGEND], 10.0);
-    
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);
-    
-    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glUseProgram ( programObject );
-    
-    glEnableVertexAttribArray ( 0 );
-    glEnableVertexAttribArray ( 1 );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
     
     // draw cube
-    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), cubeVertices );
-    glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), cubeTexCoords );
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), cubeVertices);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), cubeTexCoords);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
     m = GLKMatrix4MakeTranslation(5, 0, 0);
     m = GLKMatrix4Rotate(m, cubeRot, 1.0, 1.0, 1.0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements ( GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices );
+    glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices);
     
-    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), quadVertices );
-    glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), quadTexCoords );
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);
     for (int x = 0; x < mazeSize; x++) {
         for (int z = 0; z < mazeSize; z++) {
             if (!mazeArray[z][x]) {
@@ -212,7 +210,7 @@ static int mazeSize = 11;
                 m = GLKMatrix4RotateX(m, M_PI / -2.0);
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
+                glDrawElements (GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices);
                 
                 // draw walls
                 m = GLKMatrix4MakeTranslation(x, 0, -z);
@@ -282,12 +280,11 @@ static int mazeSize = 11;
     GLubyte *spriteData = (GLubyte *) calloc(width*height*4, sizeof(GLubyte));
     
     CGContextRef spriteContext = CGBitmapContextCreate(spriteData, width, height, 8, width*4, CGImageGetColorSpace(spriteImage), kCGImageAlphaPremultipliedLast);
-    
     CGContextDrawImage(spriteContext, CGRectMake(0, 0, width, height), spriteImage);
-    
     CGContextRelease(spriteContext);
     
     GLuint texName;
+    
     glGenTextures(1, &texName);
     glBindTexture(GL_TEXTURE_2D, texName);
     
@@ -312,7 +309,6 @@ static int mazeSize = 11;
 
 - (NSString*)getMinimap {
     NSMutableString *string = [NSMutableString string];
-    
     for(int z = 0; z < mazeSize; z++){
         for(int x = 0; x < 11; x++){
             if (z == roundf(-cameraZ) && x == roundf(cameraX)) {
@@ -344,7 +340,6 @@ static int mazeSize = 11;
         }
         [string appendFormat:@"%@", @"\n"];
     }
-    
     return string;
 }
 
