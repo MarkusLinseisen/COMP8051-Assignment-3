@@ -47,6 +47,8 @@ static bool mazeArray[11][11] = {
     {true, true, true, true, true, false, true, true, true, true, true}
 };
 
+static int mazeSize = 11;
+
 @interface Renderer () {
     GLKView *theView;
     GLESRenderer glesRenderer;
@@ -201,8 +203,8 @@ static bool mazeArray[11][11] = {
     
     glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), quadVertices );
     glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), quadTexCoords );
-    for (int x = 0; x < 11; x++) {
-        for (int z = 0; z < 11; z++) {
+    for (int x = 0; x < mazeSize; x++) {
+        for (int z = 0; z < mazeSize; z++) {
             if (!mazeArray[z][x]) {
                 
                 // draw floor
@@ -216,9 +218,9 @@ static bool mazeArray[11][11] = {
                 m = GLKMatrix4MakeTranslation(x, 0, -z);
                 int k[] = {0, 1};
                 for (int i = 0; i < 4; i++) {
-                    if (x + k[0] < 11 && x + k[0] >= 0 && z + k[1] < 11 && z + k[1] >= 0 && mazeArray[z + k[1]][x + k[0]]) {
-                        bool wall_left  = (x + k[0] + k[1] < 11 && x + k[0] + k[1] >= 0 && z + k[1] - k[0] < 11 && z + k[1] - k[0] >= 0 && mazeArray[z + k[1] - k[0]][x + k[0] + k[1]]);
-                        bool wall_right = (x + k[0] - k[1] < 11 && x + k[0] - k[1] >= 0 && z + k[1] + k[0] < 11 && z + k[1] + k[0] >= 0 && mazeArray[z + k[1] + k[0]][x + k[0] - k[1]]);
+                    if (x + k[0] < mazeSize && x + k[0] >= 0 && z + k[1] < mazeSize && z + k[1] >= 0 && mazeArray[z + k[1]][x + k[0]]) {
+                        bool wall_left  = (x + k[0] + k[1] < mazeSize && x + k[0] + k[1] >= 0 && z + k[1] - k[0] < mazeSize && z + k[1] - k[0] >= 0 && mazeArray[z + k[1] - k[0]][x + k[0] + k[1]]);
+                        bool wall_right = (x + k[0] - k[1] < mazeSize && x + k[0] - k[1] >= 0 && z + k[1] + k[0] < mazeSize && z + k[1] + k[0] >= 0 && mazeArray[z + k[1] + k[0]][x + k[0] - k[1]]);
                         if (wall_left && wall_right) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else if (wall_left) {
@@ -309,33 +311,41 @@ static bool mazeArray[11][11] = {
 }
 
 - (NSString*)getMinimap {
-    NSMutableString *goat = [NSMutableString string];
+    NSMutableString *string = [NSMutableString string];
     
-    for(int r=0;r<11;r++){
-        for(int c=0;c<11;c++){
-            if (r == floorf(-cameraZ + 0.5) && c == floorf(cameraX + 0.5)) {
+    for(int z = 0; z < mazeSize; z++){
+        for(int x = 0; x < 11; x++){
+            if (z == roundf(-cameraZ) && x == roundf(cameraX)) {
                 float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
-                if (rotDegrees > 315 || rotDegrees <= 45) {
-                    [goat appendFormat:@"%@", @"@↓"];
-                } else if (rotDegrees > 45 && rotDegrees <= 135) {
-                    [goat appendFormat:@"%@", @"@→"];
-                } else if (rotDegrees > 135 && rotDegrees <= 225) {
-                    [goat appendFormat:@"%@", @"@↑"];
-                } else {
-                    [goat appendFormat:@"%@", @"@←"];
+                if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
+                    [string appendFormat:@"%@", @"@↓"];
+                } else if (rotDegrees > 22.5 && rotDegrees <= 67.5) {
+                    [string appendFormat:@"%@", @"@↘"];
+                } else if (rotDegrees > 67.5 && rotDegrees <= 112.5) {
+                    [string appendFormat:@"%@", @"@→"];
+                } else if (rotDegrees > 112.5 && rotDegrees <= 157.5) {
+                    [string appendFormat:@"%@", @"@↗"];
+                } else if (rotDegrees > 157.5 && rotDegrees <= 202.5) {
+                    [string appendFormat:@"%@", @"@↑"];
+                } else if (rotDegrees > 202.5 && rotDegrees <= 247.5) {
+                    [string appendFormat:@"%@", @"@↖"];
+                } else if (rotDegrees > 247.5 && rotDegrees <= 292.5) {
+                    [string appendFormat:@"%@", @"@←"];
+                } else if (rotDegrees > 292.5 && rotDegrees <= 337.5) {
+                    [string appendFormat:@"%@", @"@↙"];
                 }
             } else {
-                if(mazeArray[r][c]){
-                    [goat appendFormat:@"%@", @"██"];
+                if(mazeArray[z][x]){
+                    [string appendFormat:@"%@", @"██"];
                 }else{
-                    [goat appendFormat:@"%@", @"  "];
+                    [string appendFormat:@"%@", @"  "];
                 }
             }
         }
-        [goat appendFormat:@"%@", @"\n"];
+        [string appendFormat:@"%@", @"\n"];
     }
     
-    return goat;
+    return string;
 }
 
 @end
