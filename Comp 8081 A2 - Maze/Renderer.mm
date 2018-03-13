@@ -214,11 +214,11 @@ static bool mazeArray[11][11] = {
                 
                 // draw walls
                 m = GLKMatrix4MakeTranslation(x, 0, -z);
-                int k[] = {1, 0};
+                int k[] = {0, 1};
                 for (int i = 0; i < 4; i++) {
-                    if (z + k[0] < 11 && z + k[0] >= 0 && x + k[1] < 11 && x + k[1] >= 0 && mazeArray[z + k[0]][x + k[1]]) {
-                        bool wall_left = (z + k[0] - k[1] < 11 && z + k[0] - k[1] >= 0 && x + k[1] + k[0] < 11 && x + k[1] + k[0] >= 0 && mazeArray[z + k[0] - k[1]][x + k[1] + k[0]]);
-                        bool wall_right = (z + k[0] + k[1] < 11 && z + k[0] + k[1] >= 0 && x + k[1] - k[0] < 11 && x + k[1] - k[0] >= 0 && mazeArray[z + k[0] + k[1]][x + k[1] - k[0]]);
+                    if (x + k[0] < 11 && x + k[0] >= 0 && z + k[1] < 11 && z + k[1] >= 0 && mazeArray[z + k[1]][x + k[0]]) {
+                        bool wall_left  = (x + k[0] + k[1] < 11 && x + k[0] + k[1] >= 0 && z + k[1] - k[0] < 11 && z + k[1] - k[0] >= 0 && mazeArray[z + k[1] - k[0]][x + k[0] + k[1]]);
+                        bool wall_right = (x + k[0] - k[1] < 11 && x + k[0] - k[1] >= 0 && z + k[1] + k[0] < 11 && z + k[1] + k[0] >= 0 && mazeArray[z + k[1] + k[0]][x + k[0] - k[1]]);
                         if (wall_left && wall_right) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else if (wall_left) {
@@ -236,7 +236,7 @@ static bool mazeArray[11][11] = {
                     k[1] = -k[0];
                     k[0] = temp;
                     // rotate m 45 degrees
-                    m = GLKMatrix4RotateY(m, M_PI / 2.0);
+                    m = GLKMatrix4RotateY(m, M_PI / -2.0);
                 }
 
             }
