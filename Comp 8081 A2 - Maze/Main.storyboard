@@ -85,7 +85,7 @@
                                 <rect key="frame" x="360" y="4" width="200" height="200"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="15"/>
-                                <color key="textColor" red="0.019607843140000001" green="1" blue="0.63137254899999995" alpha="0.5" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="0.019607843140000001" green="1" blue="0.63137254899999995" alpha="0.59999999999999998" colorSpace="calibratedRGB"/>
                                 <color key="highlightedColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="shadowColor" white="0.0" alpha="0.49698044479999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <size key="shadowOffset" width="1" height="1"/>
