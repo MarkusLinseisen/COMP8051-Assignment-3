@@ -222,11 +222,11 @@ bool mazeArray[mazeLength][mazeLength];
                         glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
                         glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                     }
-                    // rotate kernel 45 degrees
+                    // rotate kernel 90 degrees
                     int temp = k[1];
                     k[1] = -k[0];
                     k[0] = temp;
-                    // rotate m 45 degrees
+                    // rotate m 90 degrees
                     m = GLKMatrix4RotateY(m, M_PI / -2.0);
                 }
 
