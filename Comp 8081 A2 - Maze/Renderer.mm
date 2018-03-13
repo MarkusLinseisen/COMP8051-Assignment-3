@@ -310,7 +310,7 @@ static int mazeSize = 11;
 - (NSString*)getMinimap {
     NSMutableString *string = [NSMutableString string];
     for(int z = 0; z < mazeSize; z++){
-        for(int x = 0; x < 11; x++){
+        for(int x = 0; x < mazeSize; x++){
             if (z == roundf(-cameraZ) && x == roundf(cameraX)) {
                 float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
                 if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
