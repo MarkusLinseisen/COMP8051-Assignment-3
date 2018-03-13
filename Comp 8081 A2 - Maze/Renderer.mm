@@ -33,21 +33,10 @@ enum {
     NUM_ATTRIBUTES
 };
 
-static bool mazeArray[11][11] = {
-    {true, true, true, true, true, false, true, true, true, true, true},
-    {true, false, true, false, false, false, true, false, false, false, true},
-    {true, false, true, false, true, false, true, true, true, false, true},
-    {true, false, false, false, true, false, false, false, false, false, true},
-    {true, true, true, false, true, true, true, false, true, false, true},
-    {true, false, false, false, true, false, false, false, true, false, true},
-    {true, true, true, false, true, true, true, true, true, false, true},
-    {true, false, false, false, false, false, true, false, false, false, true},
-    {true, false, true, true, true, false, true, true, true, false, true},
-    {true, false, true, false, false, false, true, false, false, false, true},
-    {true, true, true, true, true, false, true, true, true, true, true}
-};
-
-static int mazeSize = 11;
+const int mazeSize = 10;
+const int mazeLength = mazeSize * 2 + 1;
+const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
+bool mazeArray[mazeLength][mazeLength];
 
 @interface Renderer () {
     GLKView *theView;
@@ -100,6 +89,8 @@ static int mazeSize = 11;
     if (!view.context) {
         NSLog(@"Failed to create ES context");
     }
+    
+    GenerateMaze();
     
     spotlightToggle = true;
     isDay = true;
@@ -167,7 +158,7 @@ static int mazeSize = 11;
 }
 
 - (void)reset {
-    cameraX = 5.0f;
+    cameraX = mazeEntrance;
     cameraZ = 3.0f;
     cameraRot = 0.0f;
 }
@@ -194,16 +185,16 @@ static int mazeSize = 11;
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), cubeVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), cubeTexCoords);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
-    m = GLKMatrix4MakeTranslation(5, 0, 0);
+    m = GLKMatrix4MakeTranslation(mazeEntrance, 0, 0);
     m = GLKMatrix4Rotate(m, cubeRot, 1.0, 1.0, 1.0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices);
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);
-    for (int x = 0; x < mazeSize; x++) {
-        for (int z = 0; z < mazeSize; z++) {
-            if (!mazeArray[z][x]) {
+    for (int x = 0; x < mazeLength; x++) {
+        for (int z = 0; z < mazeLength; z++) {
+            if (mazeArray[z][x]) {
                 
                 // draw floor
                 m = GLKMatrix4MakeTranslation(x, 0, -z);
@@ -216,9 +207,9 @@ static int mazeSize = 11;
                 m = GLKMatrix4MakeTranslation(x, 0, -z);
                 int k[] = {0, 1};
                 for (int i = 0; i < 4; i++) {
-                    if (x + k[0] < mazeSize && x + k[0] >= 0 && z + k[1] < mazeSize && z + k[1] >= 0 && mazeArray[z + k[1]][x + k[0]]) {
-                        bool wall_left  = (x + k[0] + k[1] < mazeSize && x + k[0] + k[1] >= 0 && z + k[1] - k[0] < mazeSize && z + k[1] - k[0] >= 0 && mazeArray[z + k[1] - k[0]][x + k[0] + k[1]]);
-                        bool wall_right = (x + k[0] - k[1] < mazeSize && x + k[0] - k[1] >= 0 && z + k[1] + k[0] < mazeSize && z + k[1] + k[0] >= 0 && mazeArray[z + k[1] + k[0]][x + k[0] - k[1]]);
+                    if (x + k[0] < mazeLength && x + k[0] >= 0 && z + k[1] < mazeLength && z + k[1] >= 0 && !mazeArray[z + k[1]][x + k[0]]) {
+                        bool wall_left  = (x + k[0] + k[1] < mazeLength && x + k[0] + k[1] >= 0 && z + k[1] - k[0] < mazeLength && z + k[1] - k[0] >= 0 && !mazeArray[z + k[1] - k[0]][x + k[0] + k[1]]);
+                        bool wall_right = (x + k[0] - k[1] < mazeLength && x + k[0] - k[1] >= 0 && z + k[1] + k[0] < mazeLength && z + k[1] + k[0] >= 0 && !mazeArray[z + k[1] + k[0]][x + k[0] - k[1]]);
                         if (wall_left && wall_right) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else if (wall_left) {
@@ -309,8 +300,8 @@ static int mazeSize = 11;
 
 - (NSString*)getMinimap {
     NSMutableString *string = [NSMutableString string];
-    for(int z = 0; z < mazeSize; z++){
-        for(int x = 0; x < mazeSize; x++){
+    for(int z = 0; z < mazeLength; z++){
+        for(int x = 0; x < mazeLength; x++){
             if (z == roundf(-cameraZ) && x == roundf(cameraX)) {
                 float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
                 if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
@@ -332,15 +323,50 @@ static int mazeSize = 11;
                 }
             } else {
                 if(mazeArray[z][x]){
-                    [string appendFormat:@"%@", @"██"];
-                }else{
                     [string appendFormat:@"%@", @"  "];
+                } else {
+                    [string appendFormat:@"%@", @"██"];
                 }
             }
         }
         [string appendFormat:@"%@", @"\n"];
     }
     return string;
+}
+
+void GenerateMaze() {
+    mazeArray[0][mazeEntrance] = true;
+    mazeArray[mazeLength - 1][mazeEntrance] = true;
+    DepthFirstSearch(1, 1);
+}
+
+void DepthFirstSearch(int x, int y) {
+    // Sets current cell as visited.
+    mazeArray[x][y] = true;
+    // Sets orderOfSearch to a random permutation of {0,1,2,3}.
+    int orderOfSearch[] = { 0, 1, 2, 3 };
+    for (int i = 0; i < 4; i++) {
+        int r = arc4random() % (4 - i) + i;
+        int temp = orderOfSearch[r];
+        orderOfSearch[r] = orderOfSearch[i];
+        orderOfSearch[i] = temp;
+    }
+    // Tries to visit cells to the North, East, South, and West in order of orderOfSearch.
+    for (int i = 0; i < 4; i++) {
+        if ((orderOfSearch[0] == i) && (y + 2 < mazeLength) && (!mazeArray[x][y + 2])) {
+            mazeArray[x][y + 1] = true;
+            DepthFirstSearch(x, y + 2);
+        } else if ((orderOfSearch[1] == i) && (x + 2 < mazeLength) && (!mazeArray[x + 2][y])) {
+            mazeArray[x + 1][y] = true;
+            DepthFirstSearch(x + 2, y);
+        } else if ((orderOfSearch[2] == i) && (y - 2 >= 0) && (!mazeArray[x][y - 2])) {
+            mazeArray[x][y - 1] = true;
+            DepthFirstSearch(x, y - 2);
+        } else if ((orderOfSearch[3] == i) && (x - 2 >= 0) && (!mazeArray[x - 2][y])) {
+            mazeArray[x - 1][y] = true;
+            DepthFirstSearch(x - 2, y);
+        }
+    }
 }
 
 @end
