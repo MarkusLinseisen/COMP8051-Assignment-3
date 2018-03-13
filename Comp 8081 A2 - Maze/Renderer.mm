@@ -33,17 +33,18 @@ enum {
     NUM_ATTRIBUTES
 };
 
-static bool mazeArray[10][10] = {
-    {true, true, true, true, false, true, true, true, true, true},
-    {true, false, false, true, false, false, false, true, false, true},
-    {true, true, false, false, false, true, true, true, false, true},
-    {true, true, true, true, false, false, false, false, false, true},
-    {true, false, false, false, false, true, true, false, true, true},
-    {true, false, true, true, true, true, true, false, true, true},
-    {true, false, true, true, true, false, true, false, true, true},
-    {true, false, true, true, true, false, true, false, true, true},
-    {true, false, false, false, false, false, true, false, true, true},
-    {true, true, true, true, true, true, true, false, true, true},
+static bool mazeArray[11][11] = {
+    {true, true, true, true, true, false, true, true, true, true, true},
+    {true, false, true, false, false, false, true, false, false, false, true},
+    {true, false, true, false, true, false, true, true, true, false, true},
+    {true, false, false, false, true, false, false, false, false, false, true},
+    {true, true, true, false, true, true, true, false, true, false, true},
+    {true, false, false, false, true, false, false, false, true, false, true},
+    {true, true, true, false, true, true, true, true, true, false, true},
+    {true, false, false, false, false, false, true, false, false, false, true},
+    {true, false, true, true, true, false, true, true, true, false, true},
+    {true, false, true, false, false, false, true, false, false, false, true},
+    {true, true, true, true, true, false, true, true, true, true, true}
 };
 
 @interface Renderer () {
@@ -123,8 +124,10 @@ static bool mazeArray[10][10] = {
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     
     glEnable(GL_DEPTH_TEST);
+    /*
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    */
     
     std::chrono::time_point<std::chrono::steady_clock> lastTime;
 }
@@ -158,8 +161,8 @@ static bool mazeArray[10][10] = {
 }
 
 - (void)reset {
-    cameraX = 4.0f;
-    cameraZ = 4.0f;
+    cameraX = 5.0f;
+    cameraZ = 3.0f;
     cameraRot = 0.0f;
 }
 
@@ -191,28 +194,28 @@ static bool mazeArray[10][10] = {
     glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), cubeVertices );
     glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), cubeTexCoords );
     glBindTexture(GL_TEXTURE_2D, crateTexture);
-    m = GLKMatrix4MakeTranslation(4, 0, 0);
+    m = GLKMatrix4MakeTranslation(5, 0, 0);
     m = GLKMatrix4Rotate(m, cubeRot, 1.0, 1.0, 1.0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements ( GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices );
     
     glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), quadVertices );
     glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), quadTexCoords );
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
+    for (int i = 0; i < 11; i++) {
+        for (int j = 0; j < 11; j++) {
             if (!mazeArray[j][i]) {
                 
                 // draw floor
-                m = GLKMatrix4MakeTranslation(i, -1, -j);
+                m = GLKMatrix4MakeTranslation(i, 0, -j);
                 m = GLKMatrix4RotateX(m, M_PI / -2.0);
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
                 glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                 
                 // draw north wall
-                if (j + 1 < 10 && mazeArray[j + 1][i]) {
-                    m = GLKMatrix4MakeTranslation(i, 0, -j - 1);
-                    if (i + 1 < 10 && mazeArray[j + 1][i + 1]) {
+                if (j + 1 < 11 && mazeArray[j + 1][i]) {
+                    m = GLKMatrix4MakeTranslation(i, 0, -j);
+                    if (i + 1 < 11 && mazeArray[j + 1][i + 1]) {
                         if (i - 1 >= 0 && mazeArray[j + 1][i - 1]) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else {
@@ -228,10 +231,10 @@ static bool mazeArray[10][10] = {
                 }
                 
                 // draw east wall
-                if (i + 1 < 10 && mazeArray[j][i+1]) {
-                    m = GLKMatrix4MakeTranslation(i+1, 0, -j);
+                if (i + 1 < 11 && mazeArray[j][i+1]) {
+                    m = GLKMatrix4MakeTranslation(i, 0, -j);
                     m = GLKMatrix4RotateY(m, M_PI / -2.0);
-                    if (j + 1 < 10 && mazeArray[j + 1][i + 1]) {
+                    if (j + 1 < 11 && mazeArray[j + 1][i + 1]) {
                         if (j - 1 >= 0 && mazeArray[j - 1][i + 1]) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else {
@@ -248,9 +251,9 @@ static bool mazeArray[10][10] = {
                 
                 // draw south wall
                 if (j - 1 >= 0 && mazeArray[j - 1][i]) {
-                    m = GLKMatrix4MakeTranslation(i, 0, -j + 1);
+                    m = GLKMatrix4MakeTranslation(i, 0, -j);
                     m = GLKMatrix4RotateY(m, -M_PI);
-                    if (i + 1 < 10 && mazeArray[j - 1][i + 1]) {
+                    if (i + 1 < 11 && mazeArray[j - 1][i + 1]) {
                         if (i - 1 >= 0 && mazeArray[j - 1][i - 1]) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else {
@@ -267,9 +270,9 @@ static bool mazeArray[10][10] = {
                 
                 // draw west wall
                 if (i - 1 >= 0 && mazeArray[j][i - 1]) {
-                    m = GLKMatrix4MakeTranslation(i - 1, 0, -j);
+                    m = GLKMatrix4MakeTranslation(i, 0, -j);
                     m = GLKMatrix4RotateY(m, M_PI / 2.0);
-                    if (j + 1 < 10 && mazeArray[j + 1][i - 1]) {
+                    if (j + 1 < 11 && mazeArray[j + 1][i - 1]) {
                         if (j - 1 >= 0 && mazeArray[j - 1][i - 1]) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else {
@@ -356,8 +359,8 @@ static bool mazeArray[10][10] = {
 - (NSString*)getMinimap {
     NSMutableString *goat = [NSMutableString string];
     
-    for(int r=0;r<10;r++){
-        for(int c=0;c<10;c++){
+    for(int r=0;r<11;r++){
+        for(int c=0;c<11;c++){
             if (r == floorf(-cameraZ + 0.5) && c == floorf(cameraX + 0.5)) {
                 float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
                 if (rotDegrees > 315 || rotDegrees <= 45) {

@@ -250,10 +250,10 @@ int GLESRenderer::GenQuad(float scale, float **vertices, float **normals, float 
     int numIndices = 6;
     
     float quadVerts[] = {
-        -0.5f, -0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
     };
     
     float quadNormals[] = {
