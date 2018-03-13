@@ -144,7 +144,7 @@ bool mazeArray[mazeLength][mazeLength];
 }
 
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
-    cameraRot -= xDelta;
+    cameraRot -= xDelta * 2.0;
     
     if (cameraRot > 2 * M_PI) {
         cameraRot -= 2 * M_PI;
@@ -153,8 +153,8 @@ bool mazeArray[mazeLength][mazeLength];
         cameraRot += 2 * M_PI;
     }
     
-    cameraZ -= cos(cameraRot) * yDelta * 4.0;
-    cameraX += sin(cameraRot) * yDelta * 4.0;
+    cameraZ -= cos(cameraRot) * yDelta * 5.0;
+    cameraX += sin(cameraRot) * yDelta * 5.0;
 }
 
 - (void)reset {
