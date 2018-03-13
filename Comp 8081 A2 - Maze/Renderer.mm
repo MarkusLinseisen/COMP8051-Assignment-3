@@ -115,7 +115,7 @@ bool mazeArray[mazeLength][mazeLength];
     
     glUseProgram (programObject);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
-    glUniform1f(uniforms[UNIFORM_FOGEND], 10.0);
+    glUniform1f(uniforms[UNIFORM_FOGEND], 8.0);
     glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], cosf(M_PI/12)); // cos(30deg / 2)
     glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
     
@@ -140,7 +140,7 @@ bool mazeArray[mazeLength][mazeLength];
     
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, 10.0f);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
 }
 
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
