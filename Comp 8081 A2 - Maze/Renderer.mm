@@ -201,90 +201,42 @@ static bool mazeArray[11][11] = {
     
     glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), quadVertices );
     glVertexAttribPointer ( 1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), quadTexCoords );
-    for (int i = 0; i < 11; i++) {
-        for (int j = 0; j < 11; j++) {
-            if (!mazeArray[j][i]) {
+    for (int x = 0; x < 11; x++) {
+        for (int z = 0; z < 11; z++) {
+            if (!mazeArray[z][x]) {
                 
                 // draw floor
-                m = GLKMatrix4MakeTranslation(i, 0, -j);
+                m = GLKMatrix4MakeTranslation(x, 0, -z);
                 m = GLKMatrix4RotateX(m, M_PI / -2.0);
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
                 glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                 
-                // draw north wall
-                if (j + 1 < 11 && mazeArray[j + 1][i]) {
-                    m = GLKMatrix4MakeTranslation(i, 0, -j);
-                    if (i + 1 < 11 && mazeArray[j + 1][i + 1]) {
-                        if (i - 1 >= 0 && mazeArray[j + 1][i - 1]) {
+                // draw walls
+                m = GLKMatrix4MakeTranslation(x, 0, -z);
+                int k[] = {1, 0};
+                for (int i = 0; i < 4; i++) {
+                    if (z + k[0] < 11 && z + k[0] >= 0 && x + k[1] < 11 && x + k[1] >= 0 && mazeArray[z + k[0]][x + k[1]]) {
+                        bool wall_left = (z + k[0] - k[1] < 11 && z + k[0] - k[1] >= 0 && x + k[1] + k[0] < 11 && x + k[1] + k[0] >= 0 && mazeArray[z + k[0] - k[1]][x + k[1] + k[0]]);
+                        bool wall_right = (z + k[0] + k[1] < 11 && z + k[0] + k[1] >= 0 && x + k[1] - k[0] < 11 && x + k[1] - k[0] >= 0 && mazeArray[z + k[0] + k[1]][x + k[1] - k[0]]);
+                        if (wall_left && wall_right) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
-                        } else {
+                        } else if (wall_left) {
                             glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
-                        }
-                    } else if (i - 1 >= 0 && mazeArray[j + 1][i - 1]) {
-                        glBindTexture(GL_TEXTURE_2D, wallRightTexture);
-                    } else {
-                        glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
-                    }
-                    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                    glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
-                }
-                
-                // draw east wall
-                if (i + 1 < 11 && mazeArray[j][i+1]) {
-                    m = GLKMatrix4MakeTranslation(i, 0, -j);
-                    m = GLKMatrix4RotateY(m, M_PI / -2.0);
-                    if (j + 1 < 11 && mazeArray[j + 1][i + 1]) {
-                        if (j - 1 >= 0 && mazeArray[j - 1][i + 1]) {
-                            glBindTexture(GL_TEXTURE_2D, wallBothTexture);
-                        } else {
+                        } else if (wall_right) {
                             glBindTexture(GL_TEXTURE_2D, wallRightTexture);
-                        }
-                    } else if (j - 1 >= 0 && mazeArray[j - 1][i + 1]) {
-                        glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
-                    } else {
-                        glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
-                    }
-                    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                    glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
-                }
-                
-                // draw south wall
-                if (j - 1 >= 0 && mazeArray[j - 1][i]) {
-                    m = GLKMatrix4MakeTranslation(i, 0, -j);
-                    m = GLKMatrix4RotateY(m, -M_PI);
-                    if (i + 1 < 11 && mazeArray[j - 1][i + 1]) {
-                        if (i - 1 >= 0 && mazeArray[j - 1][i - 1]) {
-                            glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else {
-                            glBindTexture(GL_TEXTURE_2D, wallRightTexture);
+                            glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
                         }
-                    } else if (i - 1 >= 0 && mazeArray[j - 1][i - 1]) {
-                        glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
-                    } else {
-                        glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
+                        glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+                        glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                     }
-                    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                    glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
-                }
-                
-                // draw west wall
-                if (i - 1 >= 0 && mazeArray[j][i - 1]) {
-                    m = GLKMatrix4MakeTranslation(i, 0, -j);
+                    // rotate kernel 45 degrees
+                    int temp = k[1];
+                    k[1] = -k[0];
+                    k[0] = temp;
+                    // rotate m 45 degrees
                     m = GLKMatrix4RotateY(m, M_PI / 2.0);
-                    if (j + 1 < 11 && mazeArray[j + 1][i - 1]) {
-                        if (j - 1 >= 0 && mazeArray[j - 1][i - 1]) {
-                            glBindTexture(GL_TEXTURE_2D, wallBothTexture);
-                        } else {
-                            glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
-                        }
-                    } else if (j - 1 >= 0 && mazeArray[j - 1][i - 1]) {
-                        glBindTexture(GL_TEXTURE_2D, wallRightTexture);
-                    } else {
-                        glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
-                    }
-                    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                    glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
                 }
 
             }
