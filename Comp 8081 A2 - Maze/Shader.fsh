@@ -21,7 +21,7 @@ void main() {
     if (spotlight) {
         float spotlightValue = dot(normalize(v_position), vec3(0.0, 0.0, -1.0));
         if (spotlightValue > spotlightCutoff) {
-            linearColor += spotlightColor;
+            linearColor += spotlightColor * (spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff);
         }
     }
     
