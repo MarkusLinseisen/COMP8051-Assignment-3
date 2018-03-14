@@ -6,7 +6,6 @@ in vec3 v_position;
 out vec4 o_fragColor;
 
 uniform sampler2D texSampler;
-uniform mat4 modelViewMatrix;
 uniform bool spotlight;
 uniform float spotlightCutoff;
 uniform vec4 spotlightColor;
