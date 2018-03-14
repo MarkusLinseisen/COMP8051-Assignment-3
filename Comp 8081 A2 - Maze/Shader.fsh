@@ -30,7 +30,7 @@ void main() {
     if (fog) {
         float fogMix;
         if (fogUseExp) {
-            fogMix = 1.0 / exp(length(v_position) * fogDensity);
+            fogMix = exp(-length(v_position) * fogDensity);
         } else {
             fogMix = max(0.0, 1.0 - length(v_position) / fogEnd);
         }
