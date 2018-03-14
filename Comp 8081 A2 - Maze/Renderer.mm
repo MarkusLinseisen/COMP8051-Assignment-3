@@ -15,11 +15,12 @@
 enum {
     UNIFORM_MODELVIEW_MATRIX,
     UNIFORM_PROJECTION_MATRIX,
+    UNIFORM_AMBIENTCOLOR,
     UNIFORM_SPOTLIGHT,
     UNIFORM_SPOTLIGHTCUTOFF,
     UNIFORM_SPOTLIGHTCOLOR,
-    UNIFORM_SKYCOLOR,
     UNIFORM_FOG,
+    UNIFORM_FOGCOLOR,
     UNIFORM_FOGEND,
     UNIFORM_FOGDENSITY,
     UNIFORM_FOGUSEEXP,
@@ -174,11 +175,13 @@ bool mazeArray[mazeLength][mazeLength];
     glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
     glUniform1i(uniforms[UNIFORM_FOGUSEEXP], fogUseExp);
     if (isDay) {
-        glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.784, 0.706, 0.627, 1.00);
+        glUniform4f(uniforms[UNIFORM_AMBIENTCOLOR], 0.784, 0.706, 0.627, 1.000);
+        glUniform4f(uniforms[UNIFORM_FOGCOLOR], 0.784, 0.706, 0.627, 1.000);
         glClearColor(1.000, 0.671, 0.921, 1.00);
     } else {
-        glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.125, 0.125, 0.251, 1.00);
-        glClearColor(0.125, 0.125, 0.251, 1.00);
+        glUniform4f(uniforms[UNIFORM_AMBIENTCOLOR], 0.250, 0.250, 0.500, 1.000);
+        glUniform4f(uniforms[UNIFORM_FOGCOLOR], 0.125, 0.125, 0.250, 1.000);
+        glClearColor(0.125, 0.125, 0.251, 1.000);
     }
     
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);
@@ -252,11 +255,12 @@ bool mazeArray[mazeLength][mazeLength];
     // Set up uniform variables
     uniforms[UNIFORM_MODELVIEW_MATRIX] = glGetUniformLocation(programObject, "modelViewMatrix");
     uniforms[UNIFORM_PROJECTION_MATRIX] = glGetUniformLocation(programObject, "projectionMatrix");
+    uniforms[UNIFORM_AMBIENTCOLOR] = glGetUniformLocation(programObject, "ambientColor");
     uniforms[UNIFORM_SPOTLIGHT] = glGetUniformLocation(programObject, "spotlight");
     uniforms[UNIFORM_SPOTLIGHTCUTOFF] = glGetUniformLocation(programObject, "spotlightCutoff");
     uniforms[UNIFORM_SPOTLIGHTCOLOR] = glGetUniformLocation(programObject, "spotlightColor");
-    uniforms[UNIFORM_SKYCOLOR] = glGetUniformLocation(programObject, "skyColor");
     uniforms[UNIFORM_FOG] = glGetUniformLocation(programObject, "fog");
+    uniforms[UNIFORM_FOGCOLOR] = glGetUniformLocation(programObject, "fogColor");
     uniforms[UNIFORM_FOGEND] = glGetUniformLocation(programObject, "fogEnd");
     uniforms[UNIFORM_FOGDENSITY] = glGetUniformLocation(programObject, "fogDensity");
     uniforms[UNIFORM_FOGUSEEXP] = glGetUniformLocation(programObject, "fogUseExp");
@@ -313,31 +317,31 @@ bool mazeArray[mazeLength][mazeLength];
             if (z == roundf(-cameraZ) && x == roundf(cameraX)) {
                 float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
                 if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
-                    [string appendFormat:@"%@", @"@↓"];
+                    [string appendString:@"@↓"];
                 } else if (rotDegrees > 22.5 && rotDegrees <= 67.5) {
-                    [string appendFormat:@"%@", @"@↘"];
+                    [string appendString:@"@↘"];
                 } else if (rotDegrees > 67.5 && rotDegrees <= 112.5) {
-                    [string appendFormat:@"%@", @"@→"];
+                    [string appendString:@"@→"];
                 } else if (rotDegrees > 112.5 && rotDegrees <= 157.5) {
-                    [string appendFormat:@"%@", @"@↗"];
+                    [string appendString:@"@↗"];
                 } else if (rotDegrees > 157.5 && rotDegrees <= 202.5) {
-                    [string appendFormat:@"%@", @"@↑"];
+                    [string appendString:@"@↑"];
                 } else if (rotDegrees > 202.5 && rotDegrees <= 247.5) {
-                    [string appendFormat:@"%@", @"@↖"];
+                    [string appendString:@"@↖"];
                 } else if (rotDegrees > 247.5 && rotDegrees <= 292.5) {
-                    [string appendFormat:@"%@", @"@←"];
+                    [string appendString:@"@←"];
                 } else if (rotDegrees > 292.5 && rotDegrees <= 337.5) {
-                    [string appendFormat:@"%@", @"@↙"];
+                    [string appendString:@"@↙"];
                 }
             } else {
                 if(mazeArray[z][x]){
-                    [string appendFormat:@"%@", @"  "];
+                    [string appendString:@"  "];
                 } else {
-                    [string appendFormat:@"%@", @"██"];
+                    [string appendString:@"██"];
                 }
             }
         }
-        [string appendFormat:@"%@", @"\n"];
+        [string appendString:@"\n"];
     }
     return string;
 }
