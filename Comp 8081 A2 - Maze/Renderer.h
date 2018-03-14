@@ -24,6 +24,7 @@
 @property bool isDay;
 @property bool spotlightToggle;
 @property bool fogToggle;
+@property bool fogUseExp;
 
 @end
 

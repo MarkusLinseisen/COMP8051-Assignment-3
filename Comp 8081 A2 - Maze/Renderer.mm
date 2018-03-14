@@ -21,6 +21,8 @@ enum {
     UNIFORM_SKYCOLOR,
     UNIFORM_FOG,
     UNIFORM_FOGEND,
+    UNIFORM_FOGDENSITY,
+    UNIFORM_FOGUSEEXP,
     UNIFORM_TEXTURE,
     NUM_UNIFORMS
 };
@@ -73,6 +75,7 @@ bool mazeArray[mazeLength][mazeLength];
 @synthesize isDay;
 @synthesize spotlightToggle;
 @synthesize fogToggle;
+@synthesize fogUseExp;
 
 - (void)dealloc {
     glDeleteProgram(programObject);
@@ -95,6 +98,7 @@ bool mazeArray[mazeLength][mazeLength];
     spotlightToggle = true;
     isDay = true;
     fogToggle = true;
+    fogUseExp = true;
     
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     theView = view;
@@ -116,6 +120,7 @@ bool mazeArray[mazeLength][mazeLength];
     glUseProgram (programObject);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     glUniform1f(uniforms[UNIFORM_FOGEND], 8.0);
+    glUniform1f(uniforms[UNIFORM_FOGDENSITY], 0.25);
     glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], cosf(M_PI/12)); // cos(30deg / 2)
     glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
     
@@ -167,6 +172,7 @@ bool mazeArray[mazeLength][mazeLength];
     glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
     glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
     glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
+    glUniform1i(uniforms[UNIFORM_FOGUSEEXP], fogUseExp);
     if (isDay) {
         glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.784, 0.706, 0.627, 1.00);
         glClearColor(1.000, 0.671, 0.921, 1.00);
@@ -252,6 +258,8 @@ bool mazeArray[mazeLength][mazeLength];
     uniforms[UNIFORM_SKYCOLOR] = glGetUniformLocation(programObject, "skyColor");
     uniforms[UNIFORM_FOG] = glGetUniformLocation(programObject, "fog");
     uniforms[UNIFORM_FOGEND] = glGetUniformLocation(programObject, "fogEnd");
+    uniforms[UNIFORM_FOGDENSITY] = glGetUniformLocation(programObject, "fogDensity");
+    uniforms[UNIFORM_FOGUSEEXP] = glGetUniformLocation(programObject, "fogUseExp");
     uniforms[UNIFORM_TEXTURE] = glGetUniformLocation(programObject, "texSampler");
     
     return true;

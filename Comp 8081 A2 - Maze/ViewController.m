@@ -15,7 +15,6 @@
     glesRenderer.isDay = !glesRenderer.isDay;
 }
 
-
 - (IBAction)spotlightBtn:(id)sender {
     glesRenderer.spotlightToggle = !glesRenderer.spotlightToggle;
 }
@@ -24,6 +23,14 @@
     glesRenderer.fogToggle = !glesRenderer.fogToggle;
 }
 
+- (IBAction)fogLinBtn:(id)sender {
+    glesRenderer.fogUseExp = false;
+}
+    
+- (IBAction)fogExpBtn:(id)sender {
+    glesRenderer.fogUseExp = true;
+}
+    
 
 - (void)viewDidLoad {
     [super viewDidLoad];
