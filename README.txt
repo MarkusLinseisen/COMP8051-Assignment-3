@@ -1,15 +1,15 @@
 =================================================
-| CONTROLS                                        |
+| CONTROLS                                      |
 =================================================
-| Movement                | Vertical Swiping        |
-| Rotation                | Horizontal Swiping    |
+| Movement              | Vertical Swiping      |
+| Rotation              | Horizontal Swiping    |
 | Reset Position        | Double-Tap            |
-| Toggle Minimap        | Two-Finger Double-Tap    |
-| Toggle Flashlight        | "flashlight" Button     |
-| Toggle Time of Day    | "time of day" Button    |
-| Toggle Fog            | "fog" Button            |
-| Linear Fog            | "lin" Button            |
-| Exponential Fog        | "exp" Button            |
+| Toggle Minimap        | Two-Finger Double-Tap |
+| Toggle Flashlight     | "flashlight" Button   |
+| Toggle Time of Day    | "time of day" Button  |
+| Toggle Fog            | "fog" Button          |
+| Linear Fog            | "lin" Button          |
+| Exponential Fog       | "exp" Button          |
 =================================================
 
 5.
