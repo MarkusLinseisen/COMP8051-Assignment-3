@@ -15,12 +15,15 @@
 enum {
     UNIFORM_MODELVIEW_MATRIX,
     UNIFORM_PROJECTION_MATRIX,
+    UNIFORM_AMBIENTCOLOR,
     UNIFORM_SPOTLIGHT,
     UNIFORM_SPOTLIGHTCUTOFF,
     UNIFORM_SPOTLIGHTCOLOR,
-    UNIFORM_SKYCOLOR,
     UNIFORM_FOG,
+    UNIFORM_FOGCOLOR,
     UNIFORM_FOGEND,
+    UNIFORM_FOGDENSITY,
+    UNIFORM_FOGUSEEXP,
     UNIFORM_TEXTURE,
     NUM_UNIFORMS
 };
@@ -33,37 +36,55 @@ enum {
     NUM_ATTRIBUTES
 };
 
+const int mazeSize = 10;
+const int mazeLength = mazeSize * 2 + 1;
+const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
+bool mazeArray[mazeLength][mazeLength];
+
 @interface Renderer () {
     GLKView *theView;
     GLESRenderer glesRenderer;
+    
     GLuint programObject;
-    GLuint crateTexture;
+    
     std::chrono::time_point<std::chrono::steady_clock> lastTime;
+    
+    GLuint crateTexture;
+    GLuint floorTexture;
+    GLuint wallLeftTexture;
+    GLuint wallRightTexture;
+    GLuint wallBothTexture;
+    GLuint wallNeitherTexture;
     
     GLKMatrix4 m, v, p;
 
     float cameraX, cameraZ; // camera location
     float cameraRot; // camera rotation about y
+    float cubeRot;
 
-    float *vertices, *normals, *texCoords;
-    int *indices, numIndices;
+    float *quadVertices, *quadTexCoords;
+    int *quadIndices, quadNumIndices;
+    
+    float *cubeVertices, *cubeTexCoords;
+    int *cubeIndices, cubeNumIndices;
 }
 
 @end
 
 @implementation Renderer
 
-@synthesize _isRotating;
 @synthesize isDay;
 @synthesize spotlightToggle;
 @synthesize fogToggle;
+@synthesize fogUseExp;
 
 - (void)dealloc {
     glDeleteProgram(programObject);
 }
 
 - (void)loadModels {
-    numIndices = glesRenderer.GenQuad(1.0f, &vertices, &normals, &texCoords, &indices);
+    cubeNumIndices = glesRenderer.GenCube(0.5f, &cubeVertices, NULL, &cubeTexCoords, &cubeIndices);
+    quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, NULL, &quadTexCoords, &quadIndices);
 }
 
 - (void)setup:(GLKView *)view {
@@ -73,9 +94,12 @@ enum {
         NSLog(@"Failed to create ES context");
     }
     
+    GenerateMaze();
+    
     spotlightToggle = true;
     isDay = true;
     fogToggle = true;
+    fogUseExp = true;
     
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     theView = view;
@@ -88,81 +112,136 @@ enum {
     [self reset];
     
     crateTexture = [self setupTexture:@"crate.jpg"];
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, crateTexture);
+    floorTexture = [self setupTexture:@"floor.png"];
+    wallLeftTexture = [self setupTexture:@"wall_left.png"];
+    wallRightTexture = [self setupTexture:@"wall_right.png"];
+    wallBothTexture = [self setupTexture:@"wall_both.png"];
+    wallNeitherTexture = [self setupTexture:@"wall_neither.png"];
+    
+    glUseProgram (programObject);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
+    glUniform1f(uniforms[UNIFORM_FOGEND], 8.0);
+    glUniform1f(uniforms[UNIFORM_FOGDENSITY], 0.25);
+    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], cosf(M_PI/12)); // cos(30deg / 2)
+    glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
     
     glEnable(GL_DEPTH_TEST);
-    lastTime = std::chrono::steady_clock::now();
     
+    /*
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    */
+    
+    std::chrono::time_point<std::chrono::steady_clock> lastTime;
 }
 
 - (void)update {
     auto currentTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
     lastTime = currentTime;
-
+    cubeRot += 0.001f * elapsedTime;
+    
     v = GLKMatrix4MakeYRotation(cameraRot);
     v = GLKMatrix4Translate(v, -cameraX, 0, -cameraZ);
     
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV) / (aspect * aspect), aspect, 1.0f, 20.0f);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
 }
 
-//translates the cube on the x and y axis
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
-    cameraRot += xDelta;
-    cameraZ += cos(cameraRot) * yDelta;
-    cameraX -= sin(cameraRot) * yDelta;
+    cameraRot -= xDelta * 2.0;
+    
+    if (cameraRot > 2 * M_PI) {
+        cameraRot -= 2 * M_PI;
+    }
+    if (cameraRot < 0.0) {
+        cameraRot += 2 * M_PI;
+    }
+    
+    cameraZ -= cos(cameraRot) * yDelta * 5.0;
+    cameraX += sin(cameraRot) * yDelta * 5.0;
 }
 
-//resets the cube to default position (0, 0, -5), default scale of 1, and default rotation
 - (void)reset {
-    cameraX = 0.0f;
-    cameraZ = 5.0f;
+    cameraX = mazeEntrance;
+    cameraZ = 3.0f;
     cameraRot = 0.0f;
 }
 
 - (void)draw:(CGRect)drawRect; {
     glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
-    if(isDay){
-        glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.784, 0.706, 0.627, 1.00);
-        glClearColor(0.784, 0.706, 0.627, 1.00);
-    }else{
-        glUniform4f(uniforms[UNIFORM_SKYCOLOR], 0.125, 0.125, 0.251, 1.00);
-        glClearColor(0.125, 0.125, 0.251, 1.00);
+    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
+    glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
+    glUniform1i(uniforms[UNIFORM_FOGUSEEXP], fogUseExp);
+    if (isDay) {
+        glUniform4f(uniforms[UNIFORM_AMBIENTCOLOR], 0.784, 0.706, 0.627, 1.000);
+        glUniform4f(uniforms[UNIFORM_FOGCOLOR], 0.784, 0.706, 0.627, 1.000);
+        glClearColor(1.000, 0.671, 0.921, 1.00);
+    } else {
+        glUniform4f(uniforms[UNIFORM_AMBIENTCOLOR], 0.250, 0.250, 0.500, 1.000);
+        glUniform4f(uniforms[UNIFORM_FOGCOLOR], 0.125, 0.125, 0.250, 1.000);
+        glClearColor(0.125, 0.125, 0.251, 1.000);
     }
     
-    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
-    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], 0.9961);
-    glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 1.0, 1.0, 1.0, 1.0);
-    glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
-    glUniform1f(uniforms[UNIFORM_FOGEND], 10.0);
-    
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
     
-    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glUseProgram ( programObject );
-    
-    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), vertices );
-    glEnableVertexAttribArray ( 0 );
-    
-    glVertexAttrib4f( 1, 1.0f, 1.0f, 1.0f, 1.0f ); // color
-    
-    glVertexAttribPointer ( 2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof ( GLfloat ), normals );
-    glEnableVertexAttribArray ( 2 );
-    
-    glVertexAttribPointer ( 3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof ( GLfloat ), texCoords );
-    glEnableVertexAttribArray ( 3 );
-    
-    m = GLKMatrix4MakeTranslation(0, 0, 0);
+    // draw cube
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), cubeVertices);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), cubeTexCoords);
+    glBindTexture(GL_TEXTURE_2D, crateTexture);
+    m = GLKMatrix4MakeTranslation(mazeEntrance, 0, 0);
+    m = GLKMatrix4Rotate(m, cubeRot, 1.0, 1.0, 1.0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+    glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices);
     
-    m = GLKMatrix4MakeTranslation(1.0, 0.0, 0.0);
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements ( GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, indices );
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);
+    for (int x = 0; x < mazeLength; x++) {
+        for (int z = 0; z < mazeLength; z++) {
+            if (mazeArray[z][x]) {
+                
+                // draw floor
+                m = GLKMatrix4MakeTranslation(x, 0, -z);
+                m = GLKMatrix4RotateX(m, M_PI / -2.0);
+                glBindTexture(GL_TEXTURE_2D, floorTexture);
+                glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+                glDrawElements (GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices);
+                
+                // draw walls
+                m = GLKMatrix4MakeTranslation(x, 0, -z);
+                int k[] = {0, 1};
+                for (int i = 0; i < 4; i++) {
+                    if (x + k[0] < mazeLength && x + k[0] >= 0 && z + k[1] < mazeLength && z + k[1] >= 0 && !mazeArray[z + k[1]][x + k[0]]) {
+                        bool wall_left  = (x + k[0] + k[1] < mazeLength && x + k[0] + k[1] >= 0 && z + k[1] - k[0] < mazeLength && z + k[1] - k[0] >= 0 && !mazeArray[z + k[1] - k[0]][x + k[0] + k[1]]);
+                        bool wall_right = (x + k[0] - k[1] < mazeLength && x + k[0] - k[1] >= 0 && z + k[1] + k[0] < mazeLength && z + k[1] + k[0] >= 0 && !mazeArray[z + k[1] + k[0]][x + k[0] - k[1]]);
+                        if (wall_left && wall_right) {
+                            glBindTexture(GL_TEXTURE_2D, wallBothTexture);
+                        } else if (wall_left) {
+                            glBindTexture(GL_TEXTURE_2D, wallLeftTexture);
+                        } else if (wall_right) {
+                            glBindTexture(GL_TEXTURE_2D, wallRightTexture);
+                        } else {
+                            glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
+                        }
+                        glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+                        glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
+                    }
+                    // rotate kernel 90 degrees
+                    int temp = k[1];
+                    k[1] = -k[0];
+                    k[0] = temp;
+                    // rotate m 90 degrees
+                    m = GLKMatrix4RotateY(m, M_PI / -2.0);
+                }
+
+            }
+        }
+    }
 }
 
 - (bool)setupShaders {
@@ -176,12 +255,15 @@ enum {
     // Set up uniform variables
     uniforms[UNIFORM_MODELVIEW_MATRIX] = glGetUniformLocation(programObject, "modelViewMatrix");
     uniforms[UNIFORM_PROJECTION_MATRIX] = glGetUniformLocation(programObject, "projectionMatrix");
+    uniforms[UNIFORM_AMBIENTCOLOR] = glGetUniformLocation(programObject, "ambientColor");
     uniforms[UNIFORM_SPOTLIGHT] = glGetUniformLocation(programObject, "spotlight");
     uniforms[UNIFORM_SPOTLIGHTCUTOFF] = glGetUniformLocation(programObject, "spotlightCutoff");
     uniforms[UNIFORM_SPOTLIGHTCOLOR] = glGetUniformLocation(programObject, "spotlightColor");
-    uniforms[UNIFORM_SKYCOLOR] = glGetUniformLocation(programObject, "skyColor");
     uniforms[UNIFORM_FOG] = glGetUniformLocation(programObject, "fog");
+    uniforms[UNIFORM_FOGCOLOR] = glGetUniformLocation(programObject, "fogColor");
     uniforms[UNIFORM_FOGEND] = glGetUniformLocation(programObject, "fogEnd");
+    uniforms[UNIFORM_FOGDENSITY] = glGetUniformLocation(programObject, "fogDensity");
+    uniforms[UNIFORM_FOGUSEEXP] = glGetUniformLocation(programObject, "fogUseExp");
     uniforms[UNIFORM_TEXTURE] = glGetUniformLocation(programObject, "texSampler");
     
     return true;
@@ -201,18 +283,18 @@ enum {
     GLubyte *spriteData = (GLubyte *) calloc(width*height*4, sizeof(GLubyte));
     
     CGContextRef spriteContext = CGBitmapContextCreate(spriteData, width, height, 8, width*4, CGImageGetColorSpace(spriteImage), kCGImageAlphaPremultipliedLast);
-    
     CGContextDrawImage(spriteContext, CGRectMake(0, 0, width, height), spriteImage);
-    
     CGContextRelease(spriteContext);
     
     GLuint texName;
+    
     glGenTextures(1, &texName);
     glBindTexture(GL_TEXTURE_2D, texName);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spriteData);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GLsizei(width), GLsizei(height), 0, GL_RGBA, GL_UNSIGNED_BYTE, spriteData);
     
     free(spriteData);
     return texName;
@@ -220,38 +302,82 @@ enum {
 
 //returns camera position
 - (NSString*)getPosition {
-    return [NSString stringWithFormat:@"Position: %.01f,0.00,%.01f", cameraX,cameraZ];
+    return [NSString stringWithFormat:@"ポジション: %.01f,0.0,%.01f", cameraX,cameraZ];
 }
 
 //returns camera rotation
 - (NSString*)getRotation {
-    return [NSString stringWithFormat:@"Rotation: %.01f", cameraRot * 180 / M_PI];
+    return [NSString stringWithFormat:@"回転: %.01f", cameraRot * 180 / M_PI];
 }
 
-//generate maze
--(void) generateMaze {
-    static bool mazeArray[10][10] = {
-        {true, true, true, true, false, true, true, true, true, true},
-        {true, false, false, true, false, false, false, true, false, true},
-        {true, true, false, false, false, true, true, true, false, true},
-        {true, true, true, true, false, false, false, false, false, true},
-        {true, false, false, false, false, true, true, false, true, true},
-        {true, false, true, true, true, true, true, false, true, true},
-        {true, false, true, true, true, false, true, false, true, true},
-        {true, false, true, true, true, false, true, false, true, true},
-        {true, false, false, false, false, false, true, false, true, true},
-        {true, true, true, true, true, true, true, false, true, true},
-    };
-    
-    for(int r=0;r<10;r++){
-        for(int c=0;c<10;c++){
-            if(mazeArray[r][c]){
-                printf("*"); //wall
-            }else{
-                printf(" "); //path
+- (NSString*)getMinimap {
+    NSMutableString *string = [NSMutableString string];
+    for(int z = 0; z < mazeLength; z++){
+        for(int x = 0; x < mazeLength; x++){
+            if (z == roundf(-cameraZ) && x == roundf(cameraX)) {
+                float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
+                if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
+                    [string appendString:@"@↓"];
+                } else if (rotDegrees > 22.5 && rotDegrees <= 67.5) {
+                    [string appendString:@"@↘"];
+                } else if (rotDegrees > 67.5 && rotDegrees <= 112.5) {
+                    [string appendString:@"@→"];
+                } else if (rotDegrees > 112.5 && rotDegrees <= 157.5) {
+                    [string appendString:@"@↗"];
+                } else if (rotDegrees > 157.5 && rotDegrees <= 202.5) {
+                    [string appendString:@"@↑"];
+                } else if (rotDegrees > 202.5 && rotDegrees <= 247.5) {
+                    [string appendString:@"@↖"];
+                } else if (rotDegrees > 247.5 && rotDegrees <= 292.5) {
+                    [string appendString:@"@←"];
+                } else if (rotDegrees > 292.5 && rotDegrees <= 337.5) {
+                    [string appendString:@"@↙"];
+                }
+            } else {
+                if(mazeArray[z][x]){
+                    [string appendString:@"  "];
+                } else {
+                    [string appendString:@"██"];
+                }
             }
         }
-        printf("\n");
+        [string appendString:@"\n"];
+    }
+    return string;
+}
+
+void GenerateMaze() {
+    mazeArray[0][mazeEntrance] = true;
+    mazeArray[mazeLength - 1][mazeEntrance] = true;
+    DepthFirstSearch(1, 1);
+}
+
+void DepthFirstSearch(int x, int y) {
+    // Sets current cell as visited.
+    mazeArray[x][y] = true;
+    // Sets orderOfSearch to a random permutation of {0,1,2,3}.
+    int orderOfSearch[] = { 0, 1, 2, 3 };
+    for (int i = 0; i < 4; i++) {
+        int r = arc4random() % (4 - i) + i;
+        int temp = orderOfSearch[r];
+        orderOfSearch[r] = orderOfSearch[i];
+        orderOfSearch[i] = temp;
+    }
+    // Tries to visit cells to the North, East, South, and West in order of orderOfSearch.
+    for (int i = 0; i < 4; i++) {
+        if ((orderOfSearch[0] == i) && (y + 2 < mazeLength) && (!mazeArray[x][y + 2])) {
+            mazeArray[x][y + 1] = true;
+            DepthFirstSearch(x, y + 2);
+        } else if ((orderOfSearch[1] == i) && (x + 2 < mazeLength) && (!mazeArray[x + 2][y])) {
+            mazeArray[x + 1][y] = true;
+            DepthFirstSearch(x + 2, y);
+        } else if ((orderOfSearch[2] == i) && (y - 2 >= 0) && (!mazeArray[x][y - 2])) {
+            mazeArray[x][y - 1] = true;
+            DepthFirstSearch(x, y - 2);
+        } else if ((orderOfSearch[3] == i) && (x - 2 >= 0) && (!mazeArray[x - 2][y])) {
+            mazeArray[x - 1][y] = true;
+            DepthFirstSearch(x - 2, y);
+        }
     }
 }
 

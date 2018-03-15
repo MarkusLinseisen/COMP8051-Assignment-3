@@ -1,37 +1,41 @@
 #version 300 es
 
 precision highp float;
-in vec4 v_color;
-in vec3 v_normal;
 in vec2 v_texcoord;
 in vec3 v_position;
 out vec4 o_fragColor;
 
 uniform sampler2D texSampler;
-
-uniform mat4 modelViewMatrix;
+uniform vec4 ambientColor;
 uniform bool spotlight;
 uniform float spotlightCutoff;
 uniform vec4 spotlightColor;
-uniform vec4 skyColor;
 uniform bool fog;
+uniform vec4 fogColor;
 uniform float fogEnd;
+uniform float fogDensity;
+uniform bool fogUseExp;
 
 void main() {
-    vec4 linearColor = skyColor;
+    vec4 linearColor = ambientColor;
     
     if (spotlight) {
         float spotlightValue = dot(normalize(v_position), vec3(0.0, 0.0, -1.0));
         if (spotlightValue > spotlightCutoff) {
-            linearColor += spotlightColor;
+            linearColor += spotlightColor * sqrt((spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff));
         }
     }
     
-    linearColor *= v_color * texture(texSampler, v_texcoord);
+    linearColor *= texture(texSampler, v_texcoord);
     
     if (fog) {
-        float fogMix = min(1.0, length(v_position) / fogEnd);
-        linearColor = mix(linearColor, skyColor, fogMix);
+        float fogMix;
+        if (fogUseExp) {
+            fogMix = exp(-length(v_position) * fogDensity);
+        } else {
+            fogMix = max(0.0, 1.0 - length(v_position) / fogEnd);
+        }
+        linearColor = mix(fogColor, linearColor, fogMix);
     }
     
     o_fragColor = linearColor;
