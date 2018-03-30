@@ -36,11 +36,12 @@ enum {
     NUM_ATTRIBUTES
 };
 
-const int mazeSize = 10;
+const int mazeSize = 5;
 const int mazeLength = mazeSize * 2 + 1;
 const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
 bool mazeArray[mazeLength][mazeLength];
 
+const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
 @interface Renderer () {
     GLKView *theView;
     GLESRenderer glesRenderer;
@@ -62,11 +63,15 @@ bool mazeArray[mazeLength][mazeLength];
     float cameraRot; // camera rotation about y
     float cubeRot;
 
+    float nmeX, nmeZ, nmeRot;
     float *quadVertices, *quadTexCoords;
     int *quadIndices, quadNumIndices;
     
     float *cubeVertices, *cubeTexCoords;
     int *cubeIndices, cubeNumIndices;
+    
+    
+    int tester; //testing var for enemy rotation
 }
 
 @end
@@ -127,12 +132,12 @@ bool mazeArray[mazeLength][mazeLength];
     
     glEnable(GL_DEPTH_TEST);
     
-    /*
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    */
     
     std::chrono::time_point<std::chrono::steady_clock> lastTime;
+    
+    tester = 0;
 }
 
 - (void)update {
@@ -147,6 +152,17 @@ bool mazeArray[mazeLength][mazeLength];
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
     p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
+    
+    if(tester==15){
+        [self moveNME:-90 secondDelta:0];
+        tester=0;
+    }
+    else{
+        [self moveNME:0 secondDelta:0.0125];
+        tester++;
+    }
+
+
 }
 
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
@@ -161,6 +177,22 @@ bool mazeArray[mazeLength][mazeLength];
     
     cameraZ -= cos(cameraRot) * yDelta * 5.0;
     cameraX += sin(cameraRot) * yDelta * 5.0;
+}
+
+- (void)moveNME:(float)xDelta secondDelta:(float)zDelta{
+    
+    nmeRot -= xDelta * 2.0;
+    
+    if(nmeRot > 2 * M_PI){
+        nmeRot -= 2 * M_PI;
+    }
+    if(nmeRot < 0.0){
+        nmeRot += 2 * M_PI;
+    }
+    
+    nmeZ -= cos(nmeRot) * zDelta * 5.0;
+    nmeX += sin(nmeRot) * zDelta * 5.0;
+
 }
 
 - (void)reset {
@@ -194,8 +226,8 @@ bool mazeArray[mazeLength][mazeLength];
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), cubeVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), cubeTexCoords);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
-    m = GLKMatrix4MakeTranslation(mazeEntrance, 0, 0);
-    m = GLKMatrix4Rotate(m, cubeRot, 1.0, 1.0, 1.0);
+    m = GLKMatrix4MakeTranslation(nmeStart, 0, nmeZ);
+    m = GLKMatrix4Rotate(m, nmeRot, 0.0, 1.0, 0.0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices);
     
