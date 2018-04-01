@@ -64,7 +64,7 @@
 		8C67A0BF20507C04002C8D8E = {
 			isa = PBXGroup;
 			children = (
-				8C67A0CA20507C04002C8D8E /* Comp 8081 A2 - Maze */,
+				8C67A0CA20507C04002C8D8E /* Comp 8051 A3 - Maze */,
 				8C67A0C920507C04002C8D8E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,7 +77,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8C67A0CA20507C04002C8D8E /* Comp 8081 A2 - Maze */ = {
+		8C67A0CA20507C04002C8D8E /* Comp 8051 A3 - Maze */ = {
 			isa = PBXGroup;
 			children = (
 				8C67A0E620507C61002C8D8E /* Renderer.h */,
@@ -102,7 +102,7 @@
 				8C67A0D920507C04002C8D8E /* Info.plist */,
 				8C67A0DA20507C04002C8D8E /* main.m */,
 			);
-			path = "Comp 8081 A2 - Maze";
+			path = "Comp 8051 A3 - Maze";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -316,10 +316,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LCGG6U56V4;
-				INFOPLIST_FILE = "Comp 8081 A2 - Maze/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Comp 8051 A3 - Maze/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "dt.com.Comp-8081-A2---Maze";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ibfbuswcnq.comp8051a3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -331,10 +331,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LCGG6U56V4;
-				INFOPLIST_FILE = "Comp 8081 A2 - Maze/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Comp 8051 A3 - Maze/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "dt.com.Comp-8081-A2---Maze";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ibfbuswcnq.comp8051a3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
