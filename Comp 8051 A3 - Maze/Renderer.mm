@@ -147,7 +147,7 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     cubeRot += 0.001f * elapsedTime;
     
     v = GLKMatrix4MakeYRotation(cameraRot);
-    v = GLKMatrix4Translate(v, -cameraX, 0, -cameraZ);
+    v = GLKMatrix4Translate(v, -cameraX + 0.5, 0, cameraZ - 0.5);
     
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
@@ -175,8 +175,21 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
         cameraRot += 2 * M_PI;
     }
     
-    cameraZ -= cos(cameraRot) * yDelta * 5.0;
-    cameraX += sin(cameraRot) * yDelta * 5.0;
+    float radius = 0.25;
+    
+    float cameraZ_delta = cos(cameraRot) * yDelta * 5.0;
+    cameraZ = MAX(MIN(cameraZ + cameraZ_delta, mazeLength - radius), radius);
+    float cameraZ_test_offset = signbit(cameraZ_delta)?-radius:radius;
+    if (!mazeArray[(int)(cameraZ + cameraZ_test_offset)][(int)cameraX]) {
+        cameraZ = roundf(cameraZ) - cameraZ_test_offset;
+    }
+    
+    float cameraX_delta = sin(cameraRot) * yDelta * 5.0;
+    cameraX = MAX(MIN(cameraX + cameraX_delta, mazeLength - radius), radius);
+    float cameraX_test_offset = signbit(cameraX_delta)?-radius:radius;
+    if (!mazeArray[(int)cameraZ][(int)(cameraX + cameraX_test_offset)]) {
+        cameraX = roundf(cameraX) - cameraX_test_offset;
+    }
 }
 
 - (void)moveNME:(float)xDelta secondDelta:(float)zDelta{
@@ -197,7 +210,7 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
 
 - (void)reset {
     cameraX = mazeEntrance;
-    cameraZ = 3.0f;
+    cameraZ = 0.0f;
     cameraRot = 0.0f;
 }
 
@@ -346,7 +359,7 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     NSMutableString *string = [NSMutableString string];
     for(int z = 0; z < mazeLength; z++){
         for(int x = 0; x < mazeLength; x++){
-            if (z == roundf(-cameraZ) && x == roundf(cameraX)) {
+            if (z == floor(cameraZ) && x == floor(cameraX)) {
                 float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
                 if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
                     [string appendString:@"@↓"];
