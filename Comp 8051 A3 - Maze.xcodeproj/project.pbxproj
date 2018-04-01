@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		287E053B20719B1F008F7479 /* ObjLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 287E053A20719B1F008F7479 /* ObjLoader.m */; };
 		28F42061205633F900959A11 /* floor.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F42060205633F800959A11 /* floor.png */; };
 		28F420662056340300959A11 /* wall_neither.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F420622056340200959A11 /* wall_neither.png */; };
 		28F420672056340300959A11 /* wall_right.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F420632056340300959A11 /* wall_right.png */; };
@@ -26,6 +27,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		287E053A20719B1F008F7479 /* ObjLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjLoader.m; sourceTree = "<group>"; };
+		287E053C20719B3D008F7479 /* ObjLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjLoader.h; sourceTree = "<group>"; };
 		28F42060205633F800959A11 /* floor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = floor.png; sourceTree = "<group>"; };
 		28F420622056340200959A11 /* wall_neither.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_neither.png; sourceTree = "<group>"; };
 		28F420632056340300959A11 /* wall_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_right.png; sourceTree = "<group>"; };
@@ -101,6 +104,8 @@
 				8C67A0D620507C04002C8D8E /* LaunchScreen.storyboard */,
 				8C67A0D920507C04002C8D8E /* Info.plist */,
 				8C67A0DA20507C04002C8D8E /* main.m */,
+				287E053A20719B1F008F7479 /* ObjLoader.m */,
+				287E053C20719B3D008F7479 /* ObjLoader.h */,
 			);
 			path = "Comp 8051 A3 - Maze";
 			sourceTree = "<group>";
@@ -184,6 +189,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				287E053B20719B1F008F7479 /* ObjLoader.m in Sources */,
 				8C67A0E320507C4E002C8D8E /* AppDelegate.m in Sources */,
 				8C67A0F620507C68002C8D8E /* GLESRenderer.cpp in Sources */,
 				8C67A0DB20507C04002C8D8E /* main.m in Sources */,

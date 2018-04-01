@@ -7,6 +7,7 @@
 #import <Foundation/Foundation.h>
 #include <chrono>
 #include "GLESRenderer.hpp"
+#include "ObjLoader.h"
 
 //Camera - modify the view matrix. not the projection matrix
 
