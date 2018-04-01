@@ -31,7 +31,7 @@
 		28F420632056340300959A11 /* wall_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_right.png; sourceTree = "<group>"; };
 		28F420642056340300959A11 /* wall_both.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_both.png; sourceTree = "<group>"; };
 		28F420652056340300959A11 /* wall_left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_left.png; sourceTree = "<group>"; };
-		8C67A0C820507C04002C8D8E /* Comp 8081 A2 - Maze.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Comp 8081 A2 - Maze.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C67A0C820507C04002C8D8E /* Comp 8051 A3 - Maze.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Comp 8051 A3 - Maze.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C67A0D420507C04002C8D8E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8C67A0D720507C04002C8D8E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8C67A0D920507C04002C8D8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -72,7 +72,7 @@
 		8C67A0C920507C04002C8D8E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8C67A0C820507C04002C8D8E /* Comp 8081 A2 - Maze.app */,
+				8C67A0C820507C04002C8D8E /* Comp 8051 A3 - Maze.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,9 +108,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8C67A0C720507C04002C8D8E /* Comp 8081 A2 - Maze */ = {
+		8C67A0C720507C04002C8D8E /* Comp 8051 A3 - Maze */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8C67A0DE20507C04002C8D8E /* Build configuration list for PBXNativeTarget "Comp 8081 A2 - Maze" */;
+			buildConfigurationList = 8C67A0DE20507C04002C8D8E /* Build configuration list for PBXNativeTarget "Comp 8051 A3 - Maze" */;
 			buildPhases = (
 				8C67A0C420507C04002C8D8E /* Sources */,
 				8C67A0C520507C04002C8D8E /* Frameworks */,
@@ -120,9 +120,9 @@
 			);
 			dependencies = (
 			);
-			name = "Comp 8081 A2 - Maze";
+			name = "Comp 8051 A3 - Maze";
 			productName = "Comp 8081 A2 - Maze";
-			productReference = 8C67A0C820507C04002C8D8E /* Comp 8081 A2 - Maze.app */;
+			productReference = 8C67A0C820507C04002C8D8E /* Comp 8051 A3 - Maze.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -140,7 +140,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 8C67A0C320507C04002C8D8E /* Build configuration list for PBXProject "Comp 8081 A2 - Maze" */;
+			buildConfigurationList = 8C67A0C320507C04002C8D8E /* Build configuration list for PBXProject "Comp 8051 A3 - Maze" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -153,7 +153,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8C67A0C720507C04002C8D8E /* Comp 8081 A2 - Maze */,
+				8C67A0C720507C04002C8D8E /* Comp 8051 A3 - Maze */,
 			);
 		};
 /* End PBXProject section */
@@ -343,7 +343,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8C67A0C320507C04002C8D8E /* Build configuration list for PBXProject "Comp 8081 A2 - Maze" */ = {
+		8C67A0C320507C04002C8D8E /* Build configuration list for PBXProject "Comp 8051 A3 - Maze" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8C67A0DC20507C04002C8D8E /* Debug */,
@@ -352,7 +352,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8C67A0DE20507C04002C8D8E /* Build configuration list for PBXNativeTarget "Comp 8081 A2 - Maze" */ = {
+		8C67A0DE20507C04002C8D8E /* Build configuration list for PBXNativeTarget "Comp 8051 A3 - Maze" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8C67A0DF20507C04002C8D8E /* Debug */,
