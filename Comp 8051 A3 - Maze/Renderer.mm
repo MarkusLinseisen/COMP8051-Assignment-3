@@ -209,8 +209,8 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
 }
 
 - (void)reset {
-    cameraX = mazeEntrance;
-    cameraZ = 0.0f;
+    cameraX = mazeEntrance + 0.5;
+    cameraZ = 0.5f;
     cameraRot = 0.0f;
 }
 
