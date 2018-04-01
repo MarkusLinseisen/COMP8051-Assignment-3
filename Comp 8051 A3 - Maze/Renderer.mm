@@ -41,7 +41,6 @@ const int mazeLength = mazeSize * 2 + 1;
 const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
 bool mazeArray[mazeLength][mazeLength];
 
-const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
 @interface Renderer () {
     GLKView *theView;
     GLESRenderer glesRenderer;
@@ -147,22 +146,13 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     cubeRot += 0.001f * elapsedTime;
     
     v = GLKMatrix4MakeYRotation(cameraRot);
-    v = GLKMatrix4Translate(v, -cameraX, 0, -cameraZ);
+    v = GLKMatrix4Translate(v, -cameraX, 0, cameraZ);
     
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
     p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
     
-    if(tester==15){
-        [self moveNME:-90 secondDelta:0];
-        tester=0;
-    }
-    else{
-        [self moveNME:0 secondDelta:0.0125];
-        tester++;
-    }
-
-
+    [self moveNME:0.01 secondDelta:0.05];
 }
 
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
@@ -175,13 +165,25 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
         cameraRot += 2 * M_PI;
     }
     
-    cameraZ -= cos(cameraRot) * yDelta * 5.0;
-    cameraX += sin(cameraRot) * yDelta * 5.0;
+    float radius = 0.25;
+    
+    float cameraZ_delta = cos(cameraRot) * yDelta * 5.0;
+    cameraZ = MAX(MIN(cameraZ + cameraZ_delta, mazeLength - radius), radius);
+    float cameraZ_test_offset = signbit(cameraZ_delta)?-radius:radius;
+    if (!mazeArray[(int)(cameraZ + cameraZ_test_offset)][(int)cameraX]) {
+        cameraZ = roundf(cameraZ) - cameraZ_test_offset;
+    }
+    
+    float cameraX_delta = sin(cameraRot) * yDelta * 5.0;
+    cameraX = MAX(MIN(cameraX + cameraX_delta, mazeLength - radius), radius);
+    float cameraX_test_offset = signbit(cameraX_delta)?-radius:radius;
+    if (!mazeArray[(int)cameraZ][(int)(cameraX + cameraX_test_offset)]) {
+        cameraX = roundf(cameraX) - cameraX_test_offset;
+    }
 }
 
-- (void)moveNME:(float)xDelta secondDelta:(float)zDelta{
-    
-    nmeRot -= xDelta * 2.0;
+- (void)moveNME:(float)rotation secondDelta:(float)forward{
+    nmeRot += rotation;
     
     if(nmeRot > 2 * M_PI){
         nmeRot -= 2 * M_PI;
@@ -190,15 +192,31 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
         nmeRot += 2 * M_PI;
     }
     
-    nmeZ -= cos(nmeRot) * zDelta * 5.0;
-    nmeX += sin(nmeRot) * zDelta * 5.0;
-
+    float radius = 0.25;
+    
+    float nmeZ_delta = cos(nmeRot) * forward;
+    nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius), radius);
+    float nmeZ_test_offset = signbit(nmeZ_delta)?-radius:radius;
+    if (!mazeArray[(int)(nmeZ + nmeZ_test_offset)][(int)nmeX]) {
+        nmeZ = roundf(nmeZ) - nmeZ_test_offset;
+    }
+    
+    float nmeX_delta = -sin(nmeRot) * forward;
+    nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius), radius);
+    float nmeX_test_offset = signbit(nmeX_delta)?-radius:radius;
+    if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
+        nmeX = roundf(nmeX) - nmeX_test_offset;
+    }
 }
 
 - (void)reset {
-    cameraX = mazeEntrance;
-    cameraZ = 3.0f;
+    cameraX = mazeEntrance + 0.5;
+    cameraZ = 0.5f;
     cameraRot = 0.0f;
+    
+    nmeX = mazeEntrance + 0.5;
+    nmeZ = 0.5f;
+    nmeRot = 0.0f;
 }
 
 - (void)draw:(CGRect)drawRect; {
@@ -226,8 +244,9 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), cubeVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), cubeTexCoords);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
-    m = GLKMatrix4MakeTranslation(nmeStart, 0, nmeZ);
+    m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
     m = GLKMatrix4Rotate(m, nmeRot, 0.0, 1.0, 0.0);
+    m = GLKMatrix4Scale(m, 0.5, 0.5, 0.5);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices);
     
@@ -238,14 +257,14 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
             if (mazeArray[z][x]) {
                 
                 // draw floor
-                m = GLKMatrix4MakeTranslation(x, 0, -z);
+                m = GLKMatrix4MakeTranslation(x + 0.5, 0, -z - 0.5);
                 m = GLKMatrix4RotateX(m, M_PI / -2.0);
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
                 glDrawElements (GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices);
                 
                 // draw walls
-                m = GLKMatrix4MakeTranslation(x, 0, -z);
+                m = GLKMatrix4MakeTranslation(x + 0.5, 0, -z - 0.5);
                 int k[] = {0, 1};
                 for (int i = 0; i < 4; i++) {
                     if (x + k[0] < mazeLength && x + k[0] >= 0 && z + k[1] < mazeLength && z + k[1] >= 0 && !mazeArray[z + k[1]][x + k[0]]) {
@@ -346,7 +365,7 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     NSMutableString *string = [NSMutableString string];
     for(int z = 0; z < mazeLength; z++){
         for(int x = 0; x < mazeLength; x++){
-            if (z == roundf(-cameraZ) && x == roundf(cameraX)) {
+            if (z == floor(cameraZ) && x == floor(cameraX)) {
                 float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
                 if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
                     [string appendString:@"@↓"];
@@ -365,6 +384,8 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
                 } else if (rotDegrees > 292.5 && rotDegrees <= 337.5) {
                     [string appendString:@"@↙"];
                 }
+            } else if (z == floor(nmeZ) && x == floor(nmeX)) {
+                [string appendString:@"&&"];
             } else {
                 if(mazeArray[z][x]){
                     [string appendString:@"  "];
