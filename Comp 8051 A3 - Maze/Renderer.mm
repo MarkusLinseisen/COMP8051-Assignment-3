@@ -246,6 +246,7 @@ bool mazeArray[mazeLength][mazeLength];
     glBindTexture(GL_TEXTURE_2D, crateTexture);
     m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
     m = GLKMatrix4Rotate(m, nmeRot, 0.0, 1.0, 0.0);
+    m = GLKMatrix4Scale(m, 0.5, 0.5, 0.5);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices);
     
