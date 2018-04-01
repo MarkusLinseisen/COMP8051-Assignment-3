@@ -147,7 +147,7 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     cubeRot += 0.001f * elapsedTime;
     
     v = GLKMatrix4MakeYRotation(cameraRot);
-    v = GLKMatrix4Translate(v, -cameraX + 0.5, 0, cameraZ - 0.5);
+    v = GLKMatrix4Translate(v, -cameraX, 0, cameraZ);
     
     float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
@@ -251,14 +251,14 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
             if (mazeArray[z][x]) {
                 
                 // draw floor
-                m = GLKMatrix4MakeTranslation(x, 0, -z);
+                m = GLKMatrix4MakeTranslation(x + 0.5, 0, -z - 0.5);
                 m = GLKMatrix4RotateX(m, M_PI / -2.0);
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
                 glDrawElements (GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices);
                 
                 // draw walls
-                m = GLKMatrix4MakeTranslation(x, 0, -z);
+                m = GLKMatrix4MakeTranslation(x + 0.5, 0, -z - 0.5);
                 int k[] = {0, 1};
                 for (int i = 0; i < 4; i++) {
                     if (x + k[0] < mazeLength && x + k[0] >= 0 && z + k[1] < mazeLength && z + k[1] >= 0 && !mazeArray[z + k[1]][x + k[0]]) {
