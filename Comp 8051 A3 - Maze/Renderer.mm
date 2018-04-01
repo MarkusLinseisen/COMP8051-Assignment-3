@@ -41,7 +41,6 @@ const int mazeLength = mazeSize * 2 + 1;
 const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
 bool mazeArray[mazeLength][mazeLength];
 
-const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
 @interface Renderer () {
     GLKView *theView;
     GLESRenderer glesRenderer;
@@ -153,16 +152,7 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
     p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
     
-    if(tester==15){
-        [self moveNME:-90 secondDelta:0];
-        tester=0;
-    }
-    else{
-        [self moveNME:0 secondDelta:0.0125];
-        tester++;
-    }
-
-
+    [self moveNME:0.01 secondDelta:0.05];
 }
 
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
@@ -192,9 +182,8 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     }
 }
 
-- (void)moveNME:(float)xDelta secondDelta:(float)zDelta{
-    
-    nmeRot -= xDelta * 2.0;
+- (void)moveNME:(float)rotation secondDelta:(float)forward{
+    nmeRot += rotation;
     
     if(nmeRot > 2 * M_PI){
         nmeRot -= 2 * M_PI;
@@ -203,15 +192,31 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
         nmeRot += 2 * M_PI;
     }
     
-    nmeZ -= cos(nmeRot) * zDelta * 5.0;
-    nmeX += sin(nmeRot) * zDelta * 5.0;
-
+    float radius = 0.25;
+    
+    float nmeZ_delta = cos(nmeRot) * forward;
+    nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius), radius);
+    float nmeZ_test_offset = signbit(nmeZ_delta)?-radius:radius;
+    if (!mazeArray[(int)(nmeZ + nmeZ_test_offset)][(int)nmeX]) {
+        nmeZ = roundf(nmeZ) - nmeZ_test_offset;
+    }
+    
+    float nmeX_delta = -sin(nmeRot) * forward;
+    nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius), radius);
+    float nmeX_test_offset = signbit(nmeX_delta)?-radius:radius;
+    if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
+        nmeX = roundf(nmeX) - nmeX_test_offset;
+    }
 }
 
 - (void)reset {
     cameraX = mazeEntrance + 0.5;
     cameraZ = 0.5f;
     cameraRot = 0.0f;
+    
+    nmeX = mazeEntrance + 0.5;
+    nmeZ = 0.5f;
+    nmeRot = 0.0f;
 }
 
 - (void)draw:(CGRect)drawRect; {
@@ -239,7 +244,7 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), cubeVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), cubeTexCoords);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
-    m = GLKMatrix4MakeTranslation(nmeStart, 0, nmeZ);
+    m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
     m = GLKMatrix4Rotate(m, nmeRot, 0.0, 1.0, 0.0);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices);
@@ -378,6 +383,8 @@ const int nmeStart = (mazeSize % 2)?mazeSize: mazeSize - 5;
                 } else if (rotDegrees > 292.5 && rotDegrees <= 337.5) {
                     [string appendString:@"@↙"];
                 }
+            } else if (z == floor(nmeZ) && x == floor(nmeX)) {
+                [string appendString:@"&&"];
             } else {
                 if(mazeArray[z][x]){
                     [string appendString:@"  "];
