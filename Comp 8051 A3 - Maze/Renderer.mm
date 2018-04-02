@@ -72,6 +72,7 @@ bool **mazeArray;
     int *modelIndices, modelNumIndices;
     
     int tester; //testing var for enemy rotation
+    int camLoc, nmeLoc;
 }
 
 @end
@@ -146,6 +147,8 @@ bool **mazeArray;
     std::chrono::time_point<std::chrono::steady_clock> lastTime;
     
     tester = 0;
+    nmeLoc = 1;
+    camLoc = 0;
 }
 
 - (void)update {
@@ -161,7 +164,14 @@ bool **mazeArray;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
     p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
     
-    [self moveNME:0.01 secondDelta:0.05];
+    if((int)nmeZ == (int)cameraZ && (int)nmeX == (int)cameraX){
+        _sameCell = true;
+        NSLog(@"Same Cell");
+    }
+    else{
+        [self moveNME:0.01 secondDelta:0.05];
+        _sameCell = false;
+    }
 }
 
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
@@ -192,15 +202,22 @@ bool **mazeArray;
 }
 
 - (void)moveNME:(float)rotation secondDelta:(float)forward{
-    nmeRot += rotation;
+    bool collide =false;
+/*    nmeRot += rotation;
     
     if(nmeRot > 2 * M_PI){
-        nmeRot -= 2 * M_PI;
+        nmeRot -= 0.5 * M_PI;
     }
     if(nmeRot < 0.0){
-        nmeRot += 2 * M_PI;
+        nmeRot += 0.5 * M_PI;
+    }*/
+    if(tester == 5){
+
+        tester=0;
     }
-    
+    else{
+        tester++;
+    }
     float radius = 0.25;
     
     float nmeZ_delta = cos(nmeRot) * forward;
@@ -208,6 +225,7 @@ bool **mazeArray;
     float nmeZ_test_offset = signbit(nmeZ_delta)?-radius:radius;
     if (!mazeArray[(int)(nmeZ + nmeZ_test_offset)][(int)nmeX]) {
         nmeZ = roundf(nmeZ) - nmeZ_test_offset;
+        collide=true;
     }
     
     float nmeX_delta = -sin(nmeRot) * forward;
@@ -215,7 +233,14 @@ bool **mazeArray;
     float nmeX_test_offset = signbit(nmeX_delta)?-radius:radius;
     if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
         nmeX = roundf(nmeX) - nmeX_test_offset;
+        collide=true;
     }
+    
+    if(collide){
+        nmeRot += 0.5 * M_PI;
+        NSLog(@"Collide");
+    }
+    
 }
 
 - (void)reset {
