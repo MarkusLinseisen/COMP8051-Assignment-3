@@ -70,6 +70,8 @@ bool mazeArray[mazeLength][mazeLength];
     float *cubeVertices, *cubeTexCoords;
     int *cubeIndices, cubeNumIndices;
     
+    float *modelVertices, *modelTexCoords;
+    int *modelIndices, modelNumIndices;
     
     int tester; //testing var for enemy rotation
 }
@@ -90,6 +92,13 @@ bool mazeArray[mazeLength][mazeLength];
 - (void)loadModels {
     cubeNumIndices = glesRenderer.GenCube(0.5f, &cubeVertices, NULL, &cubeTexCoords, &cubeIndices);
     quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, NULL, &quadTexCoords, &quadIndices);
+    
+    ObjLoader *objLoader = [[ObjLoader alloc] init];
+    [objLoader ReadFile:@"goat"];
+    modelVertices = [objLoader verticesPointer];
+    modelTexCoords = [objLoader texCoordsPointer];
+    modelIndices = [objLoader indicesPointer];
+    modelNumIndices = [objLoader numIndicesPointer];
 }
 
 - (void)setup:(GLKView *)view {

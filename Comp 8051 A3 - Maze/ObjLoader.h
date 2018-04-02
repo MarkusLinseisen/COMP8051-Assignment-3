@@ -9,10 +9,16 @@
 #ifndef ObjLoader_h
 #define ObjLoader_h
 #import <Foundation/Foundation.h>
+#import <GLKit/GLKit.h>
 
 @interface ObjLoader : NSObject
 
 - (void)ReadFile:(NSString *)fileName;
+
+@property float *verticesPointer;
+@property float *texCoordsPointer;
+@property int *indicesPointer;
+@property int numIndicesPointer;
 
 @end
 
