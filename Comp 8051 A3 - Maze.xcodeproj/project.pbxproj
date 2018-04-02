@@ -15,7 +15,6 @@
 		28F420682056340300959A11 /* wall_both.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F420642056340300959A11 /* wall_both.png */; };
 		28F420692056340300959A11 /* wall_left.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F420652056340300959A11 /* wall_left.png */; };
 		8C67A0D520507C04002C8D8E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C67A0D420507C04002C8D8E /* Assets.xcassets */; };
-		8C67A0D820507C04002C8D8E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C67A0D620507C04002C8D8E /* LaunchScreen.storyboard */; };
 		8C67A0DB20507C04002C8D8E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C67A0DA20507C04002C8D8E /* main.m */; };
 		8C67A0E320507C4E002C8D8E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C67A0E220507C4E002C8D8E /* AppDelegate.m */; };
 		8C67A0EC20507C61002C8D8E /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 8C67A0E420507C60002C8D8E /* Shader.vsh */; };
@@ -39,7 +38,6 @@
 		28F420652056340300959A11 /* wall_left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_left.png; sourceTree = "<group>"; };
 		8C67A0C820507C04002C8D8E /* Comp 8051 A3 - Maze.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Comp 8051 A3 - Maze.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C67A0D420507C04002C8D8E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		8C67A0D720507C04002C8D8E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8C67A0D920507C04002C8D8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8C67A0DA20507C04002C8D8E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8C67A0E120507C4D002C8D8E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -120,7 +118,6 @@
 				8C67A0E120507C4D002C8D8E /* AppDelegate.h */,
 				8C67A0E220507C4E002C8D8E /* AppDelegate.m */,
 				8C67A0D420507C04002C8D8E /* Assets.xcassets */,
-				8C67A0D620507C04002C8D8E /* LaunchScreen.storyboard */,
 				8C67A0D920507C04002C8D8E /* Info.plist */,
 				8C67A0DA20507C04002C8D8E /* main.m */,
 				287E053A20719B1F008F7479 /* ObjLoader.m */,
@@ -195,7 +192,6 @@
 				28F420692056340300959A11 /* wall_left.png in Resources */,
 				28F42061205633F900959A11 /* floor.png in Resources */,
 				8C67A0F820507D06002C8D8E /* Main.storyboard in Resources */,
-				8C67A0D820507C04002C8D8E /* LaunchScreen.storyboard in Resources */,
 				28F420682056340300959A11 /* wall_both.png in Resources */,
 				8C67A0FA20508232002C8D8E /* crate.jpg in Resources */,
 				8C67A0D520507C04002C8D8E /* Assets.xcassets in Resources */,
@@ -221,17 +217,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		8C67A0D620507C04002C8D8E /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C67A0D720507C04002C8D8E /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		8C67A0DC20507C04002C8D8E /* Debug */ = {
