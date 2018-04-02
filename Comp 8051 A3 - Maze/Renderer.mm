@@ -4,13 +4,11 @@
 //
 
 #import "Renderer.h"
+#import "MazeGenerator.h"
 #import <Foundation/Foundation.h>
 #include <chrono>
 #include "GLESRenderer.hpp"
 #include "ObjLoader.h"
-
-//Camera - modify the view matrix. not the projection matrix
-
 
 // Uniform index.
 enum {
@@ -40,7 +38,7 @@ enum {
 const int mazeSize = 5;
 const int mazeLength = mazeSize * 2 + 1;
 const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
-bool mazeArray[mazeLength][mazeLength];
+bool **mazeArray;
 
 @interface Renderer () {
     GLKView *theView;
@@ -108,7 +106,8 @@ bool mazeArray[mazeLength][mazeLength];
         NSLog(@"Failed to create ES context");
     }
     
-    GenerateMaze();
+    MazeGenerator *mazeGenerator = [[MazeGenerator alloc] init];
+    [mazeGenerator GenerateMaze:&mazeArray mazeSize:mazeSize];
     
     spotlightToggle = true;
     isDay = true;
@@ -407,41 +406,6 @@ bool mazeArray[mazeLength][mazeLength];
         [string appendString:@"\n"];
     }
     return string;
-}
-
-void GenerateMaze() {
-    mazeArray[0][mazeEntrance] = true;
-    mazeArray[mazeLength - 1][mazeEntrance] = true;
-    DepthFirstSearch(1, 1);
-}
-
-void DepthFirstSearch(int x, int y) {
-    // Sets current cell as visited.
-    mazeArray[x][y] = true;
-    // Sets orderOfSearch to a random permutation of {0,1,2,3}.
-    int orderOfSearch[] = { 0, 1, 2, 3 };
-    for (int i = 0; i < 4; i++) {
-        int r = arc4random() % (4 - i) + i;
-        int temp = orderOfSearch[r];
-        orderOfSearch[r] = orderOfSearch[i];
-        orderOfSearch[i] = temp;
-    }
-    // Tries to visit cells to the North, East, South, and West in order of orderOfSearch.
-    for (int i = 0; i < 4; i++) {
-        if ((orderOfSearch[0] == i) && (y + 2 < mazeLength) && (!mazeArray[x][y + 2])) {
-            mazeArray[x][y + 1] = true;
-            DepthFirstSearch(x, y + 2);
-        } else if ((orderOfSearch[1] == i) && (x + 2 < mazeLength) && (!mazeArray[x + 2][y])) {
-            mazeArray[x + 1][y] = true;
-            DepthFirstSearch(x + 2, y);
-        } else if ((orderOfSearch[2] == i) && (y - 2 >= 0) && (!mazeArray[x][y - 2])) {
-            mazeArray[x][y - 1] = true;
-            DepthFirstSearch(x, y - 2);
-        } else if ((orderOfSearch[3] == i) && (x - 2 >= 0) && (!mazeArray[x - 2][y])) {
-            mazeArray[x - 1][y] = true;
-            DepthFirstSearch(x - 2, y);
-        }
-    }
 }
 
 @end
