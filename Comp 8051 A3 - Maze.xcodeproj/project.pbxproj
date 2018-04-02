@@ -67,6 +67,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		287E0544207203C5008F7479 /* Textures */ = {
+			isa = PBXGroup;
+			children = (
+				8C67A0F920508232002C8D8E /* crate.jpg */,
+				28F42060205633F800959A11 /* floor.png */,
+				28F420642056340300959A11 /* wall_both.png */,
+				28F420652056340300959A11 /* wall_left.png */,
+				28F420622056340200959A11 /* wall_neither.png */,
+				28F420632056340300959A11 /* wall_right.png */,
+			);
+			path = Textures;
+			sourceTree = "<group>";
+		};
+		287E0545207203EC008F7479 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				8C67A0E420507C60002C8D8E /* Shader.vsh */,
+				8C67A0E520507C60002C8D8E /* Shader.fsh */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
 		8C67A0BF20507C04002C8D8E = {
 			isa = PBXGroup;
 			children = (
@@ -86,24 +108,18 @@
 		8C67A0CA20507C04002C8D8E /* Comp 8051 A3 - Maze */ = {
 			isa = PBXGroup;
 			children = (
+				287E0545207203EC008F7479 /* Shaders */,
+				287E0544207203C5008F7479 /* Textures */,
 				8C67A0E620507C61002C8D8E /* Renderer.h */,
 				8C67A0E920507C61002C8D8E /* Renderer.mm */,
 				8C67A0F720507D06002C8D8E /* Main.storyboard */,
 				8C67A0F420507C68002C8D8E /* GLESRenderer.cpp */,
 				8C67A0F320507C68002C8D8E /* GLESRenderer.hpp */,
-				8C67A0E520507C60002C8D8E /* Shader.fsh */,
-				8C67A0E420507C60002C8D8E /* Shader.vsh */,
 				8C67A0E720507C61002C8D8E /* ViewController.h */,
 				8C67A0EB20507C61002C8D8E /* ViewController.m */,
 				8C67A0E120507C4D002C8D8E /* AppDelegate.h */,
 				8C67A0E220507C4E002C8D8E /* AppDelegate.m */,
 				8C67A0D420507C04002C8D8E /* Assets.xcassets */,
-				8C67A0F920508232002C8D8E /* crate.jpg */,
-				28F42060205633F800959A11 /* floor.png */,
-				28F420642056340300959A11 /* wall_both.png */,
-				28F420652056340300959A11 /* wall_left.png */,
-				28F420622056340200959A11 /* wall_neither.png */,
-				28F420632056340300959A11 /* wall_right.png */,
 				8C67A0D620507C04002C8D8E /* LaunchScreen.storyboard */,
 				8C67A0D920507C04002C8D8E /* Info.plist */,
 				8C67A0DA20507C04002C8D8E /* main.m */,
