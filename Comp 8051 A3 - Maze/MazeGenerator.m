@@ -9,29 +9,25 @@
 #import <Foundation/Foundation.h>
 #import "MazeGenerator.h"
 
-@interface MazeGenerator () {
+@implementation MazeGenerator {
     bool **mazeArray;
     int mazeLength;
 }
 
-@end
-
-@implementation MazeGenerator
-
 - (void)GenerateMaze:(bool ***)maze mazeSize:(int)size {
     mazeLength = 2 * size + 1;
-
+    // allocate memory for mazeArray
     mazeArray = (bool **)malloc(mazeLength * sizeof(bool *));
     for (int i = 0; i < mazeLength; i++) {
         mazeArray[i] = (bool *)malloc(mazeLength * sizeof(bool));
     }
-    
+    // create entrance and exit
     int mazeEntrance = (size % 2)? size : size - 1;
     mazeArray[0][mazeEntrance] = true;
     mazeArray[mazeLength - 1][mazeEntrance] = true;
-    
+    // generate maze
     [self DepthFirstSearch:1 :1];
-    
+    // set maze to point to the mazeArray
     *maze = mazeArray;
 }
 
