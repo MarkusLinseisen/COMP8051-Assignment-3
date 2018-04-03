@@ -25,7 +25,7 @@ void main() {
     if (spotlight) {
         float spotlightValue = dot(normalize(v_position), vec3(0.0, 0.0, -1.0));
         if (spotlightValue > spotlightCutoff) {
-            halfLambert = dot(normal, vec3(0,0,1)) * 0.5 + 0.5;
+            halfLambert = dot(normal, normalize(-v_position)) * 0.5 + 0.5;
             linearColor += spotlightColor * halfLambert * sqrt((spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff));
         }
     }

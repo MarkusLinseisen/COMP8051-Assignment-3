@@ -133,7 +133,7 @@ bool **mazeArray;
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     glUniform1f(uniforms[UNIFORM_FOGEND], 8.0);
     glUniform1f(uniforms[UNIFORM_FOGDENSITY], 0.25);
-    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], cosf(M_PI/12)); // cos(30deg / 2)
+    glUniform1f(uniforms[UNIFORM_SPOTLIGHTCUTOFF], cosf(M_PI / 8.0)); // cos(45deg / 2)
     glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
     
     glEnable(GL_DEPTH_TEST);
