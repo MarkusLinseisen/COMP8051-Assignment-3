@@ -14,6 +14,7 @@
 - (void)loadResources;
 - (void)update;
 - (void)translateRect:(float)xDelta secondDelta:(float)zDelta;
+- (void)moveNME:(float)xDelta secondDelta:(float)zDelta;
 - (void)reset;
 - (NSString*)getPosition;
 - (NSString*)getRotation;
