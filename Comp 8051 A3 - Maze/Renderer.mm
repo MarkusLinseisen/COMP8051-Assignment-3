@@ -92,11 +92,11 @@ bool **mazeArray;
     quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, NULL, &quadTexCoords, &quadIndices);
     
     ObjLoader *objLoader = [[ObjLoader alloc] init];
-    [objLoader ReadFile:@"goat"];
+    [objLoader ReadFile:@"icosahedron.obj"];
     modelVertices = [objLoader verticesPointer];
     modelTexCoords = [objLoader texCoordsPointer];
     modelIndices = [objLoader indicesPointer];
-    modelNumIndices = [objLoader numIndicesPointer];
+    modelNumIndices = [objLoader numIndices];
 }
 
 - (void)setup:(GLKView *)view {
@@ -250,14 +250,14 @@ bool **mazeArray;
     glEnableVertexAttribArray(1);
     
     // draw cube
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), cubeVertices);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), cubeTexCoords);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), modelVertices);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), modelTexCoords);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
-    m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
+    m = GLKMatrix4MakeTranslation(nmeX, -0.294, -nmeZ);
     m = GLKMatrix4Rotate(m, nmeRot, 0.0, 1.0, 0.0);
-    m = GLKMatrix4Scale(m, 0.5, 0.5, 0.5);
+    m = GLKMatrix4Scale(m, 0.294, 0.294, 0.294);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_INT, cubeIndices);
+    glDrawElements(GL_TRIANGLES, modelNumIndices, GL_UNSIGNED_INT, modelIndices);
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);

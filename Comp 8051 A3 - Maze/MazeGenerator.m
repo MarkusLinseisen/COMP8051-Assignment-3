@@ -17,9 +17,9 @@
 - (void)GenerateMaze:(bool ***)maze mazeSize:(int)size {
     mazeLength = 2 * size + 1;
     // allocate memory for mazeArray
-    mazeArray = (bool **)malloc(mazeLength * sizeof(bool *));
+    mazeArray = malloc(mazeLength * sizeof(bool *));
     for (int i = 0; i < mazeLength; i++) {
-        mazeArray[i] = (bool *)malloc(mazeLength * sizeof(bool));
+        mazeArray[i] = malloc(mazeLength * sizeof(bool));
     }
     // create entrance and exit
     int mazeEntrance = (size % 2)? size : size - 1;

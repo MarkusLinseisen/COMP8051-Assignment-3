@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		287E053B20719B1F008F7479 /* ObjLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 287E053A20719B1F008F7479 /* ObjLoader.m */; };
 		287E05422071F2AC008F7479 /* MazeGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 287E05412071F2AC008F7479 /* MazeGenerator.m */; };
+		287E05482072EA38008F7479 /* icosahedron.obj in Resources */ = {isa = PBXBuildFile; fileRef = 287E05472072EA38008F7479 /* icosahedron.obj */; };
 		28F42061205633F900959A11 /* floor.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F42060205633F800959A11 /* floor.png */; };
 		28F420662056340300959A11 /* wall_neither.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F420622056340200959A11 /* wall_neither.png */; };
 		28F420672056340300959A11 /* wall_right.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F420632056340300959A11 /* wall_right.png */; };
@@ -31,6 +32,7 @@
 		287E053C20719B3D008F7479 /* ObjLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjLoader.h; sourceTree = "<group>"; };
 		287E05412071F2AC008F7479 /* MazeGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MazeGenerator.m; sourceTree = "<group>"; };
 		287E05432071F2BD008F7479 /* MazeGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MazeGenerator.h; sourceTree = "<group>"; };
+		287E05472072EA38008F7479 /* icosahedron.obj */ = {isa = PBXFileReference; lastKnownFileType = text; path = icosahedron.obj; sourceTree = "<group>"; };
 		28F42060205633F800959A11 /* floor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = floor.png; sourceTree = "<group>"; };
 		28F420622056340200959A11 /* wall_neither.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_neither.png; sourceTree = "<group>"; };
 		28F420632056340300959A11 /* wall_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_right.png; sourceTree = "<group>"; };
@@ -87,6 +89,14 @@
 			path = Shaders;
 			sourceTree = "<group>";
 		};
+		287E05462072EA1D008F7479 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				287E05472072EA38008F7479 /* icosahedron.obj */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		8C67A0BF20507C04002C8D8E = {
 			isa = PBXGroup;
 			children = (
@@ -106,6 +116,7 @@
 		8C67A0CA20507C04002C8D8E /* Comp 8051 A3 - Maze */ = {
 			isa = PBXGroup;
 			children = (
+				287E05462072EA1D008F7479 /* Models */,
 				287E0545207203EC008F7479 /* Shaders */,
 				287E0544207203C5008F7479 /* Textures */,
 				8C67A0E620507C61002C8D8E /* Renderer.h */,
@@ -190,6 +201,7 @@
 				28F420662056340300959A11 /* wall_neither.png in Resources */,
 				28F420672056340300959A11 /* wall_right.png in Resources */,
 				28F420692056340300959A11 /* wall_left.png in Resources */,
+				287E05482072EA38008F7479 /* icosahedron.obj in Resources */,
 				28F42061205633F900959A11 /* floor.png in Resources */,
 				8C67A0F820507D06002C8D8E /* Main.storyboard in Resources */,
 				28F420682056340300959A11 /* wall_both.png in Resources */,
