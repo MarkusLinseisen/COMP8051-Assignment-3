@@ -224,17 +224,17 @@ bool **mazeArray;
     }
     
     float radius = 0.25;
-    float fc = 1.0;
+    float offset = 1.0;
     
     float nmeZ_delta = cos(nmeRot) * yDelta;
-    nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius - fc), radius + fc);
+    nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius - offset), radius + offset);
     float nmeZ_test_offset = signbit(nmeZ_delta)?-radius:radius;
     if (!mazeArray[(int)(nmeZ + nmeZ_test_offset)][(int)nmeX]) {
         nmeZ = roundf(nmeZ) - nmeZ_test_offset;
     }
     
     float nmeX_delta = -sin(nmeRot) * yDelta;
-    nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius - fc), radius + fc);
+    nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius - offset), radius + offset);
     float nmeX_test_offset = signbit(nmeX_delta)?-radius:radius;
     if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
         nmeX = roundf(nmeX) - nmeX_test_offset;
