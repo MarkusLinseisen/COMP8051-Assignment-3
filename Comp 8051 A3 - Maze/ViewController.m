@@ -33,14 +33,15 @@
 }
     
 - (IBAction)plusScale:(id)sender {
-    
+    glesRenderer.scaleNME *= 1.25;
 }
 
 - (IBAction)minusScale:(id)sender {
-    
+    glesRenderer.scaleNME *= 0.8;
 }
 
 - (IBAction)swapControl:(id)sender {
+    glesRenderer.controllingNME = !glesRenderer.controllingNME;
 }
 
 
@@ -94,7 +95,14 @@
     CGPoint translatedPoint = [recognizer translationInView:recognizer.view.superview];
     [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
     float scale = 1.0f / recognizer.view.superview.bounds.size.width; // scales panning to be independant of screen resolution
-    [glesRenderer translateRect:(translatedPoint.x * scale) secondDelta:(translatedPoint.y * scale)];
+    translatedPoint.x *= 2 * scale;
+    translatedPoint.y *= 5 * scale;
+    if (!glesRenderer.controllingNME) {
+        [glesRenderer translateRect:translatedPoint.x secondDelta:translatedPoint.y];
+    } else {
+        [glesRenderer moveNME:translatedPoint.x secondDelta:translatedPoint.y];
+    }
+
 }
 
 - (void)didReceiveMemoryWarning {
@@ -103,12 +111,7 @@
 
 - (void)update {
     [glesRenderer update];
-    if([glesRenderer sameCell]){
-        _ModelPanel.hidden=false;
-    }
-    else{
-        _ModelPanel.hidden=true;
-    }
+    _ModelPanel.hidden = !glesRenderer.sameCell && !glesRenderer.controllingNME;
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {

@@ -152,10 +152,12 @@ bool **mazeArray;
     cameraZ = 0.5f;
     cameraRot = 0.0f;
     
-    tester = 120;
+    _controllingNME = false;
+    _scaleNME = 0.3;
     nmeX = mazeEntrance + 0.5;
     nmeZ = 1.5f;
     nmeRot = 0.0f;
+    tester = 120;
 }
 
 - (void)update {
@@ -173,9 +175,7 @@ bool **mazeArray;
     p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
     
     _sameCell = floor(nmeZ) == floor(cameraZ) && floor(nmeX) == floor(cameraX);
-    if (_sameCell) {
-        NSLog(@"Same Cell");
-    } else {
+    if (!_sameCell && !_controllingNME) {
         if(tester == 0) {
             [self moveNME:0.25 * M_PI * (rand() % 8) secondDelta:0.0];
             tester = rand() % 120; // number of ticks until enemy rotates again
@@ -187,7 +187,7 @@ bool **mazeArray;
 }
 
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
-    cameraRot -= xDelta * 2.0;
+    cameraRot -= xDelta;
     
     if (cameraRot > 2 * M_PI) {
         cameraRot -= 2 * M_PI;
@@ -198,14 +198,14 @@ bool **mazeArray;
     
     float radius = 0.25;
     
-    float cameraZ_delta = cos(cameraRot) * yDelta * 5.0;
+    float cameraZ_delta = cos(cameraRot) * yDelta;
     cameraZ = MAX(MIN(cameraZ + cameraZ_delta, mazeLength - radius), radius);
     float cameraZ_test_offset = signbit(cameraZ_delta)?-radius:radius;
     if (!mazeArray[(int)(cameraZ + cameraZ_test_offset)][(int)cameraX]) {
         cameraZ = roundf(cameraZ) - cameraZ_test_offset;
     }
     
-    float cameraX_delta = sin(cameraRot) * yDelta * 5.0;
+    float cameraX_delta = sin(cameraRot) * yDelta;
     cameraX = MAX(MIN(cameraX + cameraX_delta, mazeLength - radius), radius);
     float cameraX_test_offset = signbit(cameraX_delta)?-radius:radius;
     if (!mazeArray[(int)cameraZ][(int)(cameraX + cameraX_test_offset)]) {
@@ -214,7 +214,14 @@ bool **mazeArray;
 }
 
 - (void)moveNME:(float)xDelta secondDelta:(float)yDelta {
-    nmeRot -= xDelta;
+    nmeRot += xDelta;
+    
+    if (nmeRot > 2 * M_PI) {
+        nmeRot -= 2 * M_PI;
+    }
+    if (nmeRot < 0.0) {
+        nmeRot += 2 * M_PI;
+    }
     
     float radius = 0.25;
     float fc = 1.0;
@@ -261,9 +268,9 @@ bool **mazeArray;
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), modelTexCoords);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), modelNormals);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
-    m = GLKMatrix4MakeTranslation(nmeX, -0.294, -nmeZ);
+    m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
     m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);
-    m = GLKMatrix4Scale(m, 0.294, 0.294, 0.294);
+    m = GLKMatrix4Scale(m, _scaleNME, _scaleNME, _scaleNME);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements(GL_TRIANGLES, modelNumIndices, GL_UNSIGNED_INT, modelIndices);
     

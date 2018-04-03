@@ -26,6 +26,8 @@
 @property bool fogToggle;
 @property bool fogUseExp;
 @property bool sameCell;
+@property bool controllingNME;
+@property float scaleNME;
 
 @end
 
