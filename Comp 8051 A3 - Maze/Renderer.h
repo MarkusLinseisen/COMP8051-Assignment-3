@@ -25,6 +25,7 @@
 @property bool spotlightToggle;
 @property bool fogToggle;
 @property bool fogUseExp;
+@property bool sameCell;
 
 @end
 

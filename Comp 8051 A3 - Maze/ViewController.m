@@ -7,6 +7,7 @@
 @interface ViewController() {
     Renderer *glesRenderer; // ###
 }
+@property (strong, nonatomic) IBOutlet UIView *ModelPanel;
 @end
 
 @implementation ViewController
@@ -31,6 +32,26 @@
     glesRenderer.fogUseExp = true;
 }
     
+- (IBAction)rotateModel:(id)sender {
+    
+}
+- (IBAction)panModel:(id)sender {
+    
+}
+- (IBAction)zoomModel:(id)sender {
+    
+}
+- (IBAction)moveX:(id)sender {
+    
+}
+- (IBAction)moveY:(id)sender {
+    
+}
+- (IBAction)moveZ:(id)sender {
+    
+}
+
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -62,6 +83,7 @@
     [self.view addGestureRecognizer:panning];
     
     _minimapLabel.hidden = true;
+    _ModelPanel.hidden=true;
 }
 
 // resets position
@@ -89,6 +111,12 @@
 
 - (void)update {
     [glesRenderer update];
+    if([glesRenderer sameCell]){
+        _ModelPanel.hidden=false;
+    }
+    else{
+        _ModelPanel.hidden=true;
+    }
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
