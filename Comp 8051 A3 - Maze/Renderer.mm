@@ -186,15 +186,13 @@ bool **mazeArray;
     }
 }
 
+double wrapMax(double x, double max) {
+    return fmod(max + fmod(x, max), max);
+}
+
 - (void)translateRect:(float)xDelta secondDelta:(float)yDelta {
     cameraRot -= xDelta;
-    
-    if (cameraRot > 2 * M_PI) {
-        cameraRot -= 2 * M_PI;
-    }
-    if (cameraRot < 0.0) {
-        cameraRot += 2 * M_PI;
-    }
+    cameraRot = wrapMax(cameraRot, 2 * M_PI);
     
     float radius = 0.25;
     
@@ -215,13 +213,7 @@ bool **mazeArray;
 
 - (void)moveNME:(float)xDelta secondDelta:(float)yDelta {
     nmeRot += xDelta;
-    
-    if (nmeRot > 2 * M_PI) {
-        nmeRot -= 2 * M_PI;
-    }
-    if (nmeRot < 0.0) {
-        nmeRot += 2 * M_PI;
-    }
+    nmeRot = wrapMax(nmeRot, 2 * M_PI);
     
     float radius = fmin(0.5, _scaleNME / 2);
     float offset = 1.0;
