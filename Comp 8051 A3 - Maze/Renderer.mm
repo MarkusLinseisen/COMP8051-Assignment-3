@@ -65,7 +65,8 @@ bool **mazeArray;
     float *quadVertices, *quadTexCoords, *quadNormals;
     int *quadIndices, quadNumIndices;
     
-    float *modelVertices, *modelTexCoords, *modelNormals;
+    GLKVector3 *modelVertices, *modelNormals;
+    GLKVector2 *modelTexCoords;
     int *modelIndices, modelNumIndices;
     
     int tester; //testing var for enemy rotation
@@ -256,9 +257,9 @@ double wrapMax(double x, double max) {
     glEnableVertexAttribArray(2);
     
     // draw cube
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), modelVertices);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), modelTexCoords);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), modelNormals);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLKVector3), modelVertices);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLKVector2), modelTexCoords);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(GLKVector3), modelNormals);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
     m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
     m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);

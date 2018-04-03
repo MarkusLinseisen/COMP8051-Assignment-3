@@ -9,18 +9,18 @@
 #import "ObjLoader.h"
 #import <Foundation/Foundation.h>
 #import <GLKit/GLKit.h>
-#include <vector>
+#import <vector>
 
 @implementation ObjLoader {
     // in order read from file
-    std::vector<float> tempVertices;
-    std::vector<float> tempTexCoords;
-    std::vector<float> tempNormals;
+    std::vector<GLKVector3> tempVertices;
+    std::vector<GLKVector2> tempTexCoords;
+    std::vector<GLKVector3> tempNormals;
     
     // in order defined by faces
-    std::vector<float> vertices;
-    std::vector<float> texCoords;
-    std::vector<float> normals;
+    std::vector<GLKVector3> vertices;
+    std::vector<GLKVector2> texCoords;
+    std::vector<GLKVector3> normals;
 }
 
 - (void)ReadFile:(NSString *)fileName {
@@ -48,23 +48,21 @@
 }
 
 - (void)ReadVertex:(NSString *)_line {
-    NSArray *strings = [_line componentsSeparatedByString:@" "];
-    tempVertices.push_back([strings[1] floatValue]);
-    tempVertices.push_back([strings[2] floatValue]);
-    tempVertices.push_back([strings[3] floatValue]);
+    GLKVector3 vertex;
+    sscanf([_line UTF8String], "%*s %f %f %f\n", &vertex.x, &vertex.y, &vertex.z );
+    tempVertices.push_back(vertex);
 }
 
 - (void)ReadTexture:(NSString *)_line {
-    NSArray *strings = [_line componentsSeparatedByString:@" "];
-    tempTexCoords.push_back([strings[1] floatValue]);
-    tempTexCoords.push_back([strings[2] floatValue]);
+    GLKVector2 texCoord;
+    sscanf([_line UTF8String], "%*s %f %f\n", &texCoord.x, &texCoord.y);
+    tempTexCoords.push_back(texCoord);
 }
 
 - (void)ReadNormal:(NSString *)_line {
-    NSArray *strings = [_line componentsSeparatedByString:@" "];
-    tempNormals.push_back([strings[1] floatValue]);
-    tempNormals.push_back([strings[2] floatValue]);
-    tempNormals.push_back([strings[3] floatValue]);
+    GLKVector3 normal;
+    sscanf([_line UTF8String], "%*s %f %f %f\n", &normal.x, &normal.y, &normal.z );
+    tempNormals.push_back(normal);
 }
 
 - (void)ReadFace:(NSString *)_line {
@@ -72,25 +70,20 @@
     for (int i = 0; i < 3; i++) {
         NSString *string = strings[i + 1];
         NSArray *a = [string componentsSeparatedByString:@"/"];
-        int vertexIndex = 3 * ([a[0] intValue] - 1);
+        int vertexIndex = [a[0] intValue] - 1;
         vertices.push_back(tempVertices[vertexIndex]);
-        vertices.push_back(tempVertices[vertexIndex + 1]);
-        vertices.push_back(tempVertices[vertexIndex + 2]);
-        int texCoordIndex = 2 * ([a[1] intValue] - 1);
+        int texCoordIndex = [a[1] intValue] - 1;
         texCoords.push_back(tempTexCoords[texCoordIndex]);
-        texCoords.push_back(tempTexCoords[texCoordIndex + 1]);
-        int normalIndex = 3 * ([a[2] intValue] - 1);
+        int normalIndex = [a[2] intValue] - 1;
         normals.push_back(tempNormals[normalIndex]);
-        normals.push_back(tempNormals[normalIndex + 1]);
-        normals.push_back(tempNormals[normalIndex + 2]);
     }
 }
 
 - (void)CreateArrays {
-    _numIndices = (int)vertices.size() / 3;
-    _verticesPointer = (float *)malloc(_numIndices * 3 * sizeof(float));
-    _texCoordsPointer = (float *)malloc(_numIndices * 2 * sizeof(float));
-    _normalsPointer = (float *)malloc(_numIndices * 3 * sizeof(float));
+    _numIndices = (int)vertices.size();
+    _verticesPointer = (GLKVector3 *)malloc(_numIndices * sizeof(GLKVector3));
+    _texCoordsPointer = (GLKVector2 *)malloc(_numIndices * sizeof(GLKVector2));
+    _normalsPointer = (GLKVector3 *)malloc(_numIndices * sizeof(GLKVector3));
     _indicesPointer = (int *)malloc(_numIndices * sizeof(GLuint));
     
     std::copy(vertices.begin(), vertices.end(), _verticesPointer);

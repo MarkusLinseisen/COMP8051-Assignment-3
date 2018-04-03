@@ -15,9 +15,9 @@
 
 - (void)ReadFile:(NSString *)fileName;
 
-@property float *verticesPointer;
-@property float *texCoordsPointer;
-@property float *normalsPointer;
+@property GLKVector3 *verticesPointer;
+@property GLKVector2 *texCoordsPointer;
+@property GLKVector3 *normalsPointer;
 @property int *indicesPointer;
 @property int numIndices;
 
