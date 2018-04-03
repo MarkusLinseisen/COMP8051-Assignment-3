@@ -176,7 +176,13 @@ bool **mazeArray;
     if (_sameCell) {
         NSLog(@"Same Cell");
     } else {
-        [self moveNME];
+        if(tester == 0) {
+            [self moveNME:0.25 * M_PI * (rand() % 8) secondDelta:0.0];
+            tester = rand() % 120; // number of ticks until enemy rotates again
+        } else {
+            tester--;
+        }
+        [self moveNME:0.00 secondDelta:0.05];
     }
 }
 
@@ -207,25 +213,20 @@ bool **mazeArray;
     }
 }
 
-- (void)moveNME {
-    if(tester == 0) {
-        nmeRot = 0.25 * M_PI * (rand() % 8); // random rotation in units of 45 degrees
-        tester = rand() % 120; // number of ticks until enemy rotates again
-    } else {
-        tester--;
-    }
+- (void)moveNME:(float)xDelta secondDelta:(float)yDelta {
+    nmeRot -= xDelta;
     
     float radius = 0.25;
     float fc = 1.0;
     
-    float nmeZ_delta = cos(nmeRot) * 0.05;
+    float nmeZ_delta = cos(nmeRot) * yDelta;
     nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius - fc), radius + fc);
     float nmeZ_test_offset = signbit(nmeZ_delta)?-radius:radius;
     if (!mazeArray[(int)(nmeZ + nmeZ_test_offset)][(int)nmeX]) {
         nmeZ = roundf(nmeZ) - nmeZ_test_offset;
     }
     
-    float nmeX_delta = -sin(nmeRot) * 0.05;
+    float nmeX_delta = -sin(nmeRot) * yDelta;
     nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius - fc), radius + fc);
     float nmeX_test_offset = signbit(nmeX_delta)?-radius:radius;
     if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
