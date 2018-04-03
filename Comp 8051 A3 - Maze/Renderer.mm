@@ -62,10 +62,10 @@ bool **mazeArray;
 
     float nmeX, nmeZ, nmeRot;
     
-    float *quadVertices, *quadTexCoords;
+    float *quadVertices, *quadTexCoords, *quadNormals;
     int *quadIndices, quadNumIndices;
     
-    float *modelVertices, *modelTexCoords;
+    float *modelVertices, *modelTexCoords, *modelNormals;
     int *modelIndices, modelNumIndices;
     
     int tester; //testing var for enemy rotation
@@ -86,13 +86,14 @@ bool **mazeArray;
 
 - (void)loadResources {
     // model for walls and floors
-    quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, NULL, &quadTexCoords, &quadIndices);
+    quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, &quadNormals, &quadTexCoords, &quadIndices);
     
     // model for enemy
     ObjLoader *objLoader = [[ObjLoader alloc] init];
-    [objLoader ReadFile:@"icosahedron.obj"];
+    [objLoader ReadFile:@"suzanne.obj"];
     modelVertices = [objLoader verticesPointer];
     modelTexCoords = [objLoader texCoordsPointer];
+    modelNormals = [objLoader normalsPointer];
     modelIndices = [objLoader indicesPointer];
     modelNumIndices = [objLoader numIndices];
     
@@ -215,16 +216,17 @@ bool **mazeArray;
     }
     
     float radius = 0.25;
+    float fc = 1.0;
     
     float nmeZ_delta = cos(nmeRot) * 0.05;
-    nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius), radius);
+    nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius - fc), radius + fc);
     float nmeZ_test_offset = signbit(nmeZ_delta)?-radius:radius;
     if (!mazeArray[(int)(nmeZ + nmeZ_test_offset)][(int)nmeX]) {
         nmeZ = roundf(nmeZ) - nmeZ_test_offset;
     }
     
     float nmeX_delta = -sin(nmeRot) * 0.05;
-    nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius), radius);
+    nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius - fc), radius + fc);
     float nmeX_test_offset = signbit(nmeX_delta)?-radius:radius;
     if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
         nmeX = roundf(nmeX) - nmeX_test_offset;
@@ -251,19 +253,22 @@ bool **mazeArray;
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
     
     // draw cube
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), modelVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), modelTexCoords);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), modelNormals);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
     m = GLKMatrix4MakeTranslation(nmeX, -0.294, -nmeZ);
-    m = GLKMatrix4Rotate(m, nmeRot, 0.0, 1.0, 0.0);
+    m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);
     m = GLKMatrix4Scale(m, 0.294, 0.294, 0.294);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
     glDrawElements(GL_TRIANGLES, modelNumIndices, GL_UNSIGNED_INT, modelIndices);
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadNormals);
     for (int x = 0; x < mazeLength; x++) {
         for (int z = 0; z < mazeLength; z++) {
             if (mazeArray[z][x]) {

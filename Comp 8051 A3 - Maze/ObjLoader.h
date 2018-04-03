@@ -17,6 +17,7 @@
 
 @property float *verticesPointer;
 @property float *texCoordsPointer;
+@property float *normalsPointer;
 @property int *indicesPointer;
 @property int numIndices;
 

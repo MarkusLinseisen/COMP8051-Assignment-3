@@ -3,6 +3,7 @@
 precision highp float;
 in vec2 v_texcoord;
 in vec3 v_position;
+in vec3 v_normal;
 out vec4 o_fragColor;
 
 uniform sampler2D texSampler;
@@ -17,12 +18,15 @@ uniform float fogDensity;
 uniform bool fogUseExp;
 
 void main() {
-    vec4 linearColor = ambientColor;
+    vec3 normal = normalize(v_normal);
+    float halfLambert = dot(normal, vec3(0,1,0)) * 0.5 + 0.5;
+    vec4 linearColor = halfLambert * ambientColor;
     
     if (spotlight) {
         float spotlightValue = dot(normalize(v_position), vec3(0.0, 0.0, -1.0));
         if (spotlightValue > spotlightCutoff) {
-            linearColor += spotlightColor * sqrt((spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff));
+            halfLambert = dot(normal, vec3(0,0,1)) * 0.5 + 0.5;
+            linearColor += spotlightColor * halfLambert * sqrt((spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff));
         }
     }
     

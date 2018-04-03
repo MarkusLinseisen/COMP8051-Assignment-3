@@ -19,7 +19,6 @@
 - (NSString*)getRotation;
 - (NSString*)getMinimap;
 - (void)draw:(CGRect)drawRect;
-- (void)moveNME:(float)xDelta secondDelta:(float)zDelta;
 
 @property bool isDay;
 @property bool spotlightToggle;
