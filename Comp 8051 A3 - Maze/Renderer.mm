@@ -223,7 +223,7 @@ bool **mazeArray;
         nmeRot += 2 * M_PI;
     }
     
-    float radius = 0.25;
+    float radius = fmin(0.5, _scaleNME / 2);
     float offset = 1.0;
     
     float nmeZ_delta = cos(nmeRot) * yDelta;
