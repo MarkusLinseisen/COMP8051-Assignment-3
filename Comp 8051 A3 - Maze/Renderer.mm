@@ -59,20 +59,16 @@ bool **mazeArray;
 
     float cameraX, cameraZ; // camera location
     float cameraRot; // camera rotation about y
-    float cubeRot;
 
     float nmeX, nmeZ, nmeRot;
+    
     float *quadVertices, *quadTexCoords;
     int *quadIndices, quadNumIndices;
-    
-    float *cubeVertices, *cubeTexCoords;
-    int *cubeIndices, cubeNumIndices;
     
     float *modelVertices, *modelTexCoords;
     int *modelIndices, modelNumIndices;
     
     int tester; //testing var for enemy rotation
-    int camLoc, nmeLoc;
 }
 
 @end
@@ -88,16 +84,29 @@ bool **mazeArray;
     glDeleteProgram(programObject);
 }
 
-- (void)loadModels {
-    cubeNumIndices = glesRenderer.GenCube(0.5f, &cubeVertices, NULL, &cubeTexCoords, &cubeIndices);
+- (void)loadResources {
+    // model for walls and floors
     quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, NULL, &quadTexCoords, &quadIndices);
     
+    // model for enemy
     ObjLoader *objLoader = [[ObjLoader alloc] init];
     [objLoader ReadFile:@"icosahedron.obj"];
     modelVertices = [objLoader verticesPointer];
     modelTexCoords = [objLoader texCoordsPointer];
     modelIndices = [objLoader indicesPointer];
     modelNumIndices = [objLoader numIndices];
+    
+    // maze data representation
+    MazeGenerator *mazeGenerator = [[MazeGenerator alloc] init];
+    [mazeGenerator GenerateMaze:&mazeArray mazeSize:mazeSize];
+    
+    // textures
+    crateTexture = [self setupTexture:@"crate.jpg"];
+    floorTexture = [self setupTexture:@"floor.png"];
+    wallLeftTexture = [self setupTexture:@"wall_left.png"];
+    wallRightTexture = [self setupTexture:@"wall_right.png"];
+    wallBothTexture = [self setupTexture:@"wall_both.png"];
+    wallNeitherTexture = [self setupTexture:@"wall_neither.png"];
 }
 
 - (void)setup:(GLKView *)view {
@@ -106,9 +115,6 @@ bool **mazeArray;
     if (!view.context) {
         NSLog(@"Failed to create ES context");
     }
-    
-    MazeGenerator *mazeGenerator = [[MazeGenerator alloc] init];
-    [mazeGenerator GenerateMaze:&mazeArray mazeSize:mazeSize];
     
     spotlightToggle = true;
     isDay = true;
@@ -122,16 +128,6 @@ bool **mazeArray;
         return;
     }
     
-    //setup initial camera coordinates
-    [self reset];
-    
-    crateTexture = [self setupTexture:@"crate.jpg"];
-    floorTexture = [self setupTexture:@"floor.png"];
-    wallLeftTexture = [self setupTexture:@"wall_left.png"];
-    wallRightTexture = [self setupTexture:@"wall_right.png"];
-    wallBothTexture = [self setupTexture:@"wall_both.png"];
-    wallNeitherTexture = [self setupTexture:@"wall_neither.png"];
-    
     glUseProgram (programObject);
     glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
     glUniform1f(uniforms[UNIFORM_FOGEND], 8.0);
@@ -140,22 +136,33 @@ bool **mazeArray;
     glUniform4f(uniforms[UNIFORM_SPOTLIGHTCOLOR], 0.5, 0.5, 0.5, 1.0);
     
     glEnable(GL_DEPTH_TEST);
-    
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
     
-    std::chrono::time_point<std::chrono::steady_clock> lastTime;
+    /*
+    lastTime = std::chrono::steady_clock::now();
+    */
     
-    tester = 0;
-    nmeLoc = 1;
-    camLoc = 0;
+    //set camera and nme to initial values
+    [self reset];
+}
+
+- (void)reset {
+    cameraX = mazeEntrance + 0.5;
+    cameraZ = 0.5f;
+    cameraRot = 0.0f;
+    
+    tester = 120;
+    nmeX = mazeEntrance + 0.5;
+    nmeZ = 1.5f;
+    nmeRot = 0.0f;
 }
 
 - (void)update {
+    /*
     auto currentTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
     lastTime = currentTime;
-    cubeRot += 0.001f * elapsedTime;
+    */
     
     v = GLKMatrix4MakeYRotation(cameraRot);
     v = GLKMatrix4Translate(v, -cameraX, 0, cameraZ);
@@ -164,13 +171,11 @@ bool **mazeArray;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
     p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
     
-    if((int)nmeZ == (int)cameraZ && (int)nmeX == (int)cameraX){
-        _sameCell = true;
+    _sameCell = floor(nmeZ) == floor(cameraZ) && floor(nmeX) == floor(cameraX);
+    if (_sameCell) {
         NSLog(@"Same Cell");
-    }
-    else{
-        [self moveNME:0.01 secondDelta:0.05];
-        _sameCell = false;
+    } else {
+        [self moveNME];
     }
 }
 
@@ -201,56 +206,29 @@ bool **mazeArray;
     }
 }
 
-- (void)moveNME:(float)rotation secondDelta:(float)forward{
-    bool collide =false;
-/*    nmeRot += rotation;
+- (void)moveNME {
+    if(tester == 0) {
+        nmeRot = 0.25 * M_PI * (rand() % 8); // random rotation in units of 45 degrees
+        tester = rand() % 120; // number of ticks until enemy rotates again
+    } else {
+        tester--;
+    }
     
-    if(nmeRot > 2 * M_PI){
-        nmeRot -= 0.5 * M_PI;
-    }
-    if(nmeRot < 0.0){
-        nmeRot += 0.5 * M_PI;
-    }*/
-    if(tester == 5){
-
-        tester=0;
-    }
-    else{
-        tester++;
-    }
     float radius = 0.25;
     
-    float nmeZ_delta = cos(nmeRot) * forward;
+    float nmeZ_delta = cos(nmeRot) * 0.05;
     nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius), radius);
     float nmeZ_test_offset = signbit(nmeZ_delta)?-radius:radius;
     if (!mazeArray[(int)(nmeZ + nmeZ_test_offset)][(int)nmeX]) {
         nmeZ = roundf(nmeZ) - nmeZ_test_offset;
-        collide=true;
     }
     
-    float nmeX_delta = -sin(nmeRot) * forward;
+    float nmeX_delta = -sin(nmeRot) * 0.05;
     nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius), radius);
     float nmeX_test_offset = signbit(nmeX_delta)?-radius:radius;
     if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
         nmeX = roundf(nmeX) - nmeX_test_offset;
-        collide=true;
     }
-    
-    if(collide){
-        nmeRot += 0.5 * M_PI;
-        NSLog(@"Collide");
-    }
-    
-}
-
-- (void)reset {
-    cameraX = mazeEntrance + 0.5;
-    cameraZ = 0.5f;
-    cameraRot = 0.0f;
-    
-    nmeX = mazeEntrance + 0.5;
-    nmeZ = 0.5f;
-    nmeRot = 0.0f;
 }
 
 - (void)draw:(CGRect)drawRect; {

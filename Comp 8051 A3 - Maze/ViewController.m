@@ -60,7 +60,7 @@
     glesRenderer = [[Renderer alloc] init];
     GLKView *view = (GLKView *)self.view;
     [glesRenderer setup:view];
-    [glesRenderer loadModels];
+    [glesRenderer loadResources];
     // ### >>>
     
     // single finger double tap

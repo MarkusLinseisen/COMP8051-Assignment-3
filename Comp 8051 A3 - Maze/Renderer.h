@@ -11,7 +11,7 @@
 @interface Renderer : NSObject
 
 - (void)setup:(GLKView *)view;
-- (void)loadModels;
+- (void)loadResources;
 - (void)update;
 - (void)translateRect:(float)xDelta secondDelta:(float)zDelta;
 - (void)reset;
