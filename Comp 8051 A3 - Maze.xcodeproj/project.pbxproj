@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		287E053B20719B1F008F7479 /* ObjLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 287E053A20719B1F008F7479 /* ObjLoader.m */; };
+		287E053B20719B1F008F7479 /* ObjLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 287E053A20719B1F008F7479 /* ObjLoader.mm */; };
 		287E05422071F2AC008F7479 /* MazeGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 287E05412071F2AC008F7479 /* MazeGenerator.m */; };
 		287E05482072EA38008F7479 /* suzanne.obj in Resources */ = {isa = PBXBuildFile; fileRef = 287E05472072EA38008F7479 /* suzanne.obj */; };
 		28F42061205633F900959A11 /* floor.png in Resources */ = {isa = PBXBuildFile; fileRef = 28F42060205633F800959A11 /* floor.png */; };
@@ -28,7 +28,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		287E053A20719B1F008F7479 /* ObjLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjLoader.m; sourceTree = "<group>"; };
+		287E053A20719B1F008F7479 /* ObjLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ObjLoader.mm; sourceTree = "<group>"; };
 		287E053C20719B3D008F7479 /* ObjLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjLoader.h; sourceTree = "<group>"; };
 		287E05412071F2AC008F7479 /* MazeGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MazeGenerator.m; sourceTree = "<group>"; };
 		287E05432071F2BD008F7479 /* MazeGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MazeGenerator.h; sourceTree = "<group>"; };
@@ -131,7 +131,7 @@
 				8C67A0D420507C04002C8D8E /* Assets.xcassets */,
 				8C67A0D920507C04002C8D8E /* Info.plist */,
 				8C67A0DA20507C04002C8D8E /* main.m */,
-				287E053A20719B1F008F7479 /* ObjLoader.m */,
+				287E053A20719B1F008F7479 /* ObjLoader.mm */,
 				287E053C20719B3D008F7479 /* ObjLoader.h */,
 				287E05432071F2BD008F7479 /* MazeGenerator.h */,
 				287E05412071F2AC008F7479 /* MazeGenerator.m */,
@@ -219,7 +219,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				287E05422071F2AC008F7479 /* MazeGenerator.m in Sources */,
-				287E053B20719B1F008F7479 /* ObjLoader.m in Sources */,
+				287E053B20719B1F008F7479 /* ObjLoader.mm in Sources */,
 				8C67A0E320507C4E002C8D8E /* AppDelegate.m in Sources */,
 				8C67A0F620507C68002C8D8E /* GLESRenderer.cpp in Sources */,
 				8C67A0DB20507C04002C8D8E /* main.m in Sources */,
