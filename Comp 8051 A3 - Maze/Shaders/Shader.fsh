@@ -19,7 +19,7 @@ uniform bool fogUseExp;
 
 void main() {
     vec3 normal = normalize(v_normal);
-    float halfLambert = dot(normal, vec3(0,1,0)) * 0.5 + 0.5;
+    float halfLambert = dot(normal, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
     vec4 linearColor = halfLambert * ambientColor;
     
     if (spotlight) {
