@@ -139,6 +139,14 @@
                                             <action selector="minusScale:" destination="lwC-Ps-cS9" eventType="touchUpInside" id="rAa-KQ-IkJ"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="D9x-Tt-MDf">
+                                        <rect key="frame" x="32" y="61" width="46" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="swap"/>
+                                        <connections>
+                                            <action selector="swapControl:" destination="lwC-Ps-cS9" eventType="touchUpInside" id="2B3-La-bWZ"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
