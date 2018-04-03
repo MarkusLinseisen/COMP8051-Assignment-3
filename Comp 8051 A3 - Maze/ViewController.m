@@ -32,24 +32,14 @@
     glesRenderer.fogUseExp = true;
 }
     
-- (IBAction)rotateModel:(id)sender {
+- (IBAction)plusScale:(id)sender {
     
 }
-- (IBAction)panModel:(id)sender {
+
+- (IBAction)minusScale:(id)sender {
     
 }
-- (IBAction)zoomModel:(id)sender {
-    
-}
-- (IBAction)moveX:(id)sender {
-    
-}
-- (IBAction)moveY:(id)sender {
-    
-}
-- (IBAction)moveZ:(id)sender {
-    
-}
+
 
 
 
