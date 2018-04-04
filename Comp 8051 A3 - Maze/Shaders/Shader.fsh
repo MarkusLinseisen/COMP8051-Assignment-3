@@ -18,19 +18,27 @@ uniform float fogDensity;
 uniform bool fogUseExp;
 
 void main() {
-    vec3 normal = normalize(v_normal);
-    float halfLambert = dot(normal, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
-    vec4 linearColor = halfLambert * ambientColor;
+    const vec3 ambientDirection = vec3(0.0, -1.0, 0.0);
+    const vec3 spotlightDirection = vec3(0.0, 0.0, -1.0);
     
+    vec3 position = normalize(v_position);
+    vec3 normal = normalize(v_normal);
+
+    float diffuseCoefficient = dot(normal, -ambientDirection) * 0.5 + 0.5;
+    vec4 diffuse = ambientColor * diffuseCoefficient;
+    float rimCoefficient = dot(normal, position) * 0.5 + 0.5;
+    vec4 rim = rimCoefficient * ambientColor;
+
     if (spotlight) {
-        float spotlightValue = dot(normalize(v_position), vec3(0.0, 0.0, -1.0));
+        float spotlightValue = dot(position, spotlightDirection);
         if (spotlightValue > spotlightCutoff) {
-            halfLambert = dot(normal, normalize(-v_position)) * 0.5 + 0.5;
-            linearColor += spotlightColor * halfLambert * sqrt((spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff));
+            diffuseCoefficient = dot(normal, -spotlightDirection) * 0.5 + 0.5;
+            diffuse += spotlightColor * diffuseCoefficient * sqrt((spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff));
         }
     }
     
-    linearColor *= texture(texSampler, v_texcoord);
+    diffuse *= texture(texSampler, v_texcoord);
+    vec4 linearColor = diffuse + rim;
     
     if (fog) {
         float fogMix;
