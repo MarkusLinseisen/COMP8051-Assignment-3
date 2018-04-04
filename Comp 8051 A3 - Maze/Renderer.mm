@@ -29,13 +29,11 @@ enum {
 };
 GLint uniforms[NUM_UNIFORMS];
 
-const int H_FOV = 110;
 const float CAMERA_RADIUS = 0.25;
-
-const int mazeSize = 5;
-const int mazeLength = mazeSize * 2 + 1;
-const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
-bool **mazeArray;
+const int H_FOV = 110;
+const int MAZE_SIZE = 5;
+const int MAZE_ENTRANCE = (MAZE_SIZE % 2)?MAZE_SIZE: MAZE_SIZE - 1;
+const int MAZE_LENGTH = MAZE_SIZE * 2 + 1;
 
 @interface Renderer () {
     GLKView *theView;
@@ -50,11 +48,16 @@ bool **mazeArray;
     GLuint wallBothTexture;
     GLuint wallNeitherTexture;
     
+    std::vector<GLKVector3> modelVertices, modelNormals;
+    std::vector<GLKVector2> modelTexCoords;
+    std::vector<unsigned short> modelIndices;
     GLuint modelVertexBuffer;
     GLuint modelUVBuffer;
     GLuint modelNormalBuffer;
     GLuint modelElementBuffer;
     
+    float *quadVertices, *quadTexCoords, *quadNormals;
+    int *quadIndices, quadNumIndices;
     GLuint quadVertexBuffer;
     GLuint quadUVBuffer;
     GLuint quadNormalBuffer;
@@ -62,19 +65,10 @@ bool **mazeArray;
     
     GLKMatrix4 m, v, p;
 
-    float cameraX, cameraZ; // camera location
-    float cameraRot; // camera rotation about y
-
+    float cameraX, cameraZ, cameraRot;
     float nmeX, nmeZ, nmeRot;
-    
-    float *quadVertices, *quadTexCoords, *quadNormals;
-    int *quadIndices, quadNumIndices;
-    
-    std::vector<GLKVector3> modelVertices, modelNormals;
-    std::vector<GLKVector2> modelTexCoords;
-    std::vector<unsigned short> modelIndices;
-    
     int tester; //testing var for enemy rotation
+    bool **mazeArray;
 }
 
 @end
@@ -141,7 +135,7 @@ bool **mazeArray;
     
     // maze data representation
     MazeGenerator *mazeGenerator = [[MazeGenerator alloc] init];
-    [mazeGenerator GenerateMaze:&mazeArray mazeSize:mazeSize];
+    [mazeGenerator GenerateMaze:&mazeArray mazeSize:MAZE_SIZE];
     
     // textures
     crateTexture = [self setupTexture:@"crate.jpg"];
@@ -191,13 +185,13 @@ bool **mazeArray;
 }
 
 - (void)reset {
-    cameraX = mazeEntrance + 0.5;
+    cameraX = MAZE_ENTRANCE + 0.5;
     cameraZ = 0.5f;
     cameraRot = 0.0f;
     
     _controllingNME = false;
     _scaleNME = 0.3;
-    nmeX = mazeEntrance + 0.5;
+    nmeX = MAZE_ENTRANCE + 0.5;
     nmeZ = 1.5f;
     nmeRot = 0.0f;
     tester = 120;
@@ -208,7 +202,7 @@ bool **mazeArray;
     v = GLKMatrix4Translate(v, -cameraX, 0, cameraZ);
     
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(H_FOV), aspect, 0.1f, mazeLength);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(H_FOV), aspect, 0.1f, MAZE_LENGTH);
     
     _sameCell = floor(nmeZ) == floor(cameraZ) && floor(nmeX) == floor(cameraX);
     if (!_sameCell && !_controllingNME) {
@@ -231,14 +225,14 @@ double wrapMax(double x, double max) {
     cameraRot = wrapMax(cameraRot, 2 * M_PI);
     
     float cameraZ_delta = cos(cameraRot) * yDelta;
-    cameraZ = MAX(MIN(cameraZ + cameraZ_delta, mazeLength - CAMERA_RADIUS), CAMERA_RADIUS);
+    cameraZ = MAX(MIN(cameraZ + cameraZ_delta, MAZE_LENGTH - CAMERA_RADIUS), CAMERA_RADIUS);
     float cameraZ_test_offset = signbit(cameraZ_delta)?-CAMERA_RADIUS:CAMERA_RADIUS;
     if (!mazeArray[(int)(cameraZ + cameraZ_test_offset)][(int)cameraX]) {
         cameraZ = roundf(cameraZ) - cameraZ_test_offset;
     }
     
     float cameraX_delta = sin(cameraRot) * yDelta;
-    cameraX = MAX(MIN(cameraX + cameraX_delta, mazeLength - CAMERA_RADIUS), CAMERA_RADIUS);
+    cameraX = MAX(MIN(cameraX + cameraX_delta, MAZE_LENGTH - CAMERA_RADIUS), CAMERA_RADIUS);
     float cameraX_test_offset = signbit(cameraX_delta)?-CAMERA_RADIUS:CAMERA_RADIUS;
     if (!mazeArray[(int)cameraZ][(int)(cameraX + cameraX_test_offset)]) {
         cameraX = roundf(cameraX) - cameraX_test_offset;
@@ -253,14 +247,14 @@ double wrapMax(double x, double max) {
     float offset = 1.0;
     
     float nmeZ_delta = cos(nmeRot) * yDelta;
-    nmeZ = MAX(MIN(nmeZ + nmeZ_delta, mazeLength - radius - offset), radius + offset);
+    nmeZ = MAX(MIN(nmeZ + nmeZ_delta, MAZE_LENGTH - radius - offset), radius + offset);
     float nmeZ_test_offset = signbit(nmeZ_delta)?-radius:radius;
     if (!mazeArray[(int)(nmeZ + nmeZ_test_offset)][(int)nmeX]) {
         nmeZ = roundf(nmeZ) - nmeZ_test_offset;
     }
     
     float nmeX_delta = -sin(nmeRot) * yDelta;
-    nmeX = MAX(MIN(nmeX + nmeX_delta, mazeLength - radius - offset), radius + offset);
+    nmeX = MAX(MIN(nmeX + nmeX_delta, MAZE_LENGTH - radius - offset), radius + offset);
     float nmeX_test_offset = signbit(nmeX_delta)?-radius:radius;
     if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
         nmeX = roundf(nmeX) - nmeX_test_offset;
@@ -311,8 +305,8 @@ double wrapMax(double x, double max) {
     glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer); glVertexAttribPointer(2,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadElementBuffer);
     
-    for (int x = 0; x < mazeLength; x++) {
-        for (int z = 0; z < mazeLength; z++) {
+    for (int x = 0; x < MAZE_LENGTH; x++) {
+        for (int z = 0; z < MAZE_LENGTH; z++) {
             if (mazeArray[z][x]) {
                 
                 // draw floor
@@ -326,9 +320,9 @@ double wrapMax(double x, double max) {
                 m = GLKMatrix4MakeTranslation(x + 0.5, 0, -z - 0.5);
                 int k[] = {0, 1};
                 for (int i = 0; i < 4; i++) {
-                    if (x + k[0] < mazeLength && x + k[0] >= 0 && z + k[1] < mazeLength && z + k[1] >= 0 && !mazeArray[z + k[1]][x + k[0]]) {
-                        bool wall_left  = (x + k[0] + k[1] < mazeLength && x + k[0] + k[1] >= 0 && z + k[1] - k[0] < mazeLength && z + k[1] - k[0] >= 0 && !mazeArray[z + k[1] - k[0]][x + k[0] + k[1]]);
-                        bool wall_right = (x + k[0] - k[1] < mazeLength && x + k[0] - k[1] >= 0 && z + k[1] + k[0] < mazeLength && z + k[1] + k[0] >= 0 && !mazeArray[z + k[1] + k[0]][x + k[0] - k[1]]);
+                    if (x + k[0] < MAZE_LENGTH && x + k[0] >= 0 && z + k[1] < MAZE_LENGTH && z + k[1] >= 0 && !mazeArray[z + k[1]][x + k[0]]) {
+                        bool wall_left  = (x + k[0] + k[1] < MAZE_LENGTH && x + k[0] + k[1] >= 0 && z + k[1] - k[0] < MAZE_LENGTH && z + k[1] - k[0] >= 0 && !mazeArray[z + k[1] - k[0]][x + k[0] + k[1]]);
+                        bool wall_right = (x + k[0] - k[1] < MAZE_LENGTH && x + k[0] - k[1] >= 0 && z + k[1] + k[0] < MAZE_LENGTH && z + k[1] + k[0] >= 0 && !mazeArray[z + k[1] + k[0]][x + k[0] - k[1]]);
                         if (wall_left && wall_right) {
                             glBindTexture(GL_TEXTURE_2D, wallBothTexture);
                         } else if (wall_left) {
@@ -422,8 +416,8 @@ double wrapMax(double x, double max) {
 
 - (NSString*)getMinimap {
     NSMutableString *string = [NSMutableString string];
-    for(int z = 0; z < mazeLength; z++){
-        for(int x = 0; x < mazeLength; x++){
+    for(int z = 0; z < MAZE_LENGTH; z++){
+        for(int x = 0; x < MAZE_LENGTH; x++){
             if (z == floor(cameraZ) && x == floor(cameraX)) {
                 float rotDegrees = GLKMathRadiansToDegrees(cameraRot);
                 if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
