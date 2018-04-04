@@ -241,7 +241,6 @@ double wrapMax(double x, double max) {
 }
 
 - (void)generateVBOs; {
-    // Load it into a VBO
     glGenBuffers(1, &modelVertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, modelVertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(GLKVector3), &modelVertices[0], GL_STATIC_DRAW);
@@ -290,7 +289,7 @@ double wrapMax(double x, double max) {
     m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);
     m = GLKMatrix4Scale(m, _scaleNME, _scaleNME, _scaleNME);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements(GL_TRIANGLES, (int)modelIndices.size(), GL_UNSIGNED_INT, &modelIndices[0]);
+    glDrawElements(GL_TRIANGLES, (int)modelIndices.size(), GL_UNSIGNED_SHORT, &modelIndices[0]);
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);
