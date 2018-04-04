@@ -33,7 +33,7 @@ void main() {
     if (spotlight) {
         float spotlightValue = dot(position, spotlightDirection);
         if (spotlightValue > spotlightCutoff) {
-            diffuseCoefficient = dot(normal, -spotlightDirection) * 0.5 + 0.5;
+            diffuseCoefficient = dot(normal, -position) * 0.5 + 0.5;
             diffuse += spotlightColor * diffuseCoefficient * sqrt((spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff));
         }
     }
