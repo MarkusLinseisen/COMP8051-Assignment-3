@@ -6,9 +6,9 @@
 #import "Renderer.h"
 #import "MazeGenerator.h"
 #import <Foundation/Foundation.h>
-#include <chrono>
-#include "GLESRenderer.hpp"
-#include "ObjLoader.h"
+#import <chrono>
+#import "GLESRenderer.hpp"
+#import "ObjLoader.h"
 
 // Uniform index.
 enum {
