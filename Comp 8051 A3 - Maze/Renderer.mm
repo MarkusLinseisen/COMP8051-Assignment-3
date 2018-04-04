@@ -29,13 +29,6 @@ enum {
 };
 GLint uniforms[NUM_UNIFORMS];
 
-// Attribute index.
-enum {
-    ATTRIB_VERTEX,
-    ATTRIB_NORMAL,
-    NUM_ATTRIBUTES
-};
-
 const int mazeSize = 5;
 const int mazeLength = mazeSize * 2 + 1;
 const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
@@ -46,8 +39,6 @@ bool **mazeArray;
     GLESRenderer glesRenderer;
     
     GLuint programObject;
-    
-    std::chrono::time_point<std::chrono::steady_clock> lastTime;
     
     GLuint crateTexture;
     GLuint floorTexture;
@@ -156,10 +147,6 @@ bool **mazeArray;
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
     
-    /*
-    lastTime = std::chrono::steady_clock::now();
-    */
-    
     //set camera and nme to initial values
     [self reset];
 }
@@ -178,12 +165,6 @@ bool **mazeArray;
 }
 
 - (void)update {
-    /*
-    auto currentTime = std::chrono::steady_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count();
-    lastTime = currentTime;
-    */
-    
     v = GLKMatrix4MakeYRotation(cameraRot);
     v = GLKMatrix4Translate(v, -cameraX, 0, cameraZ);
     
