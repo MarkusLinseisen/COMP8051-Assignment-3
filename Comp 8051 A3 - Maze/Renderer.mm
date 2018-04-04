@@ -331,8 +331,6 @@ double wrapMax(double x, double max) {
 }
 
 - (void)drawNME {
-
-    
     glBindBuffer(GL_ARRAY_BUFFER, modelVertexBuffer);
     glVertexAttribPointer(0,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
 
