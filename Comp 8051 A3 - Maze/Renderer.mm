@@ -30,6 +30,7 @@ enum {
 GLint uniforms[NUM_UNIFORMS];
 
 const float CAMERA_RADIUS = 0.25;
+const float NEARCLIP = 0.05;
 const int H_FOV = 110;
 const int MAZE_SIZE = 5;
 const int MAZE_ENTRANCE = (MAZE_SIZE % 2)?MAZE_SIZE: MAZE_SIZE - 1;
@@ -202,7 +203,7 @@ const int MAZE_LENGTH = MAZE_SIZE * 2 + 1;
     v = GLKMatrix4Translate(v, -cameraX, 0, cameraZ);
     
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(H_FOV), aspect, 0.1f, MAZE_LENGTH);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(H_FOV), aspect, NEARCLIP, MAZE_LENGTH * sqrt(2));
     
     _sameCell = floor(nmeZ) == floor(cameraZ) && floor(nmeX) == floor(cameraX);
     if (!_sameCell && !_controllingNME) {
