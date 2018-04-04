@@ -114,6 +114,8 @@ bool **mazeArray;
     wallRightTexture = [self setupTexture:@"wall_right.png"];
     wallBothTexture = [self setupTexture:@"wall_both.png"];
     wallNeitherTexture = [self setupTexture:@"wall_neither.png"];
+    
+    [self generateVBOs];
 }
 
 - (void)setup:(GLKView *)view {
@@ -145,13 +147,16 @@ bool **mazeArray;
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    
     /*
     lastTime = std::chrono::steady_clock::now();
     */
     
     //set camera and nme to initial values
     [self reset];
-    [self generateVBOs];
 }
 
 - (void)reset {
@@ -276,21 +281,8 @@ double wrapMax(double x, double max) {
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    
-    // draw cube
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLKVector3), &modelVertices[0]);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLKVector2), &modelTexCoords[0]);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(GLKVector3), &modelNormals[0]);
-    glBindTexture(GL_TEXTURE_2D, crateTexture);
-    m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
-    m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);
-    m = GLKMatrix4Scale(m, _scaleNME, _scaleNME, _scaleNME);
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements(GL_TRIANGLES, (int)modelIndices.size(), GL_UNSIGNED_SHORT, &modelIndices[0]);
-    
+    [self drawNME];
+    /*
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadNormals);
@@ -335,6 +327,31 @@ double wrapMax(double x, double max) {
             }
         }
     }
+    */
+}
+
+- (void)drawNME {
+
+    
+    glBindBuffer(GL_ARRAY_BUFFER, modelVertexBuffer);
+    glVertexAttribPointer(0,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+
+    glBindBuffer(GL_ARRAY_BUFFER, modelUVBuffer);
+    glVertexAttribPointer(1,2,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+
+    glBindBuffer(GL_ARRAY_BUFFER, modelNormalBuffer);
+    glVertexAttribPointer(2,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelElementBuffer);
+    
+    glBindTexture(GL_TEXTURE_2D, crateTexture);
+    
+    m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
+    m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);
+    m = GLKMatrix4Scale(m, _scaleNME, _scaleNME, _scaleNME);
+    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+    
+    glDrawElements(GL_TRIANGLES, (int)modelIndices.size(), GL_UNSIGNED_SHORT, (void*)0 );
 }
 
 - (bool)setupShaders {
