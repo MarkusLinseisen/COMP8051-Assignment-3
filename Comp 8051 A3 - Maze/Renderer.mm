@@ -29,6 +29,9 @@ enum {
 };
 GLint uniforms[NUM_UNIFORMS];
 
+const int H_FOV = 110;
+const float CAMERA_RADIUS = 0.25;
+
 const int mazeSize = 5;
 const int mazeLength = mazeSize * 2 + 1;
 const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
@@ -87,33 +90,6 @@ bool **mazeArray;
     glDeleteProgram(programObject);
 }
 
-- (void)loadResources {
-    // model for walls and floors
-    quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, &quadNormals, &quadTexCoords, &quadIndices);
-    
-    // model for enemy
-    ObjLoader *objLoader = [[ObjLoader alloc] init];
-    [objLoader ReadFile:@"suzanne.obj"];
-    modelVertices = objLoader.vertices;
-    modelTexCoords = objLoader.texCoords;
-    modelNormals = objLoader.normals;
-    modelIndices = objLoader.indices;
-    
-    // maze data representation
-    MazeGenerator *mazeGenerator = [[MazeGenerator alloc] init];
-    [mazeGenerator GenerateMaze:&mazeArray mazeSize:mazeSize];
-    
-    // textures
-    crateTexture = [self setupTexture:@"crate.jpg"];
-    floorTexture = [self setupTexture:@"floor.png"];
-    wallLeftTexture = [self setupTexture:@"wall_left.png"];
-    wallRightTexture = [self setupTexture:@"wall_right.png"];
-    wallBothTexture = [self setupTexture:@"wall_both.png"];
-    wallNeitherTexture = [self setupTexture:@"wall_neither.png"];
-    
-    [self generateVBOs];
-}
-
 - (void)setup:(GLKView *)view {
     view.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     
@@ -151,6 +127,69 @@ bool **mazeArray;
     [self reset];
 }
 
+- (void)loadResources {
+    // model for walls and floors
+    quadNumIndices = glesRenderer.GenQuad(1.0f, &quadVertices, &quadNormals, &quadTexCoords, &quadIndices);
+    
+    // model for enemy
+    ObjLoader *objLoader = [[ObjLoader alloc] init];
+    [objLoader ReadFile:@"suzanne.obj"];
+    modelVertices = objLoader.vertices;
+    modelTexCoords = objLoader.texCoords;
+    modelNormals = objLoader.normals;
+    modelIndices = objLoader.indices;
+    
+    // maze data representation
+    MazeGenerator *mazeGenerator = [[MazeGenerator alloc] init];
+    [mazeGenerator GenerateMaze:&mazeArray mazeSize:mazeSize];
+    
+    // textures
+    crateTexture = [self setupTexture:@"crate.jpg"];
+    floorTexture = [self setupTexture:@"floor.png"];
+    wallLeftTexture = [self setupTexture:@"wall_left.png"];
+    wallRightTexture = [self setupTexture:@"wall_right.png"];
+    wallBothTexture = [self setupTexture:@"wall_both.png"];
+    wallNeitherTexture = [self setupTexture:@"wall_neither.png"];
+    
+    [self generateVBOs];
+}
+
+- (void)generateVBOs; {
+    // model vertex position
+    glGenBuffers(1, &modelVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, modelVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(GLKVector3), &modelVertices[0], GL_STATIC_DRAW);
+    // model UVs
+    glGenBuffers(1, &modelUVBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, modelUVBuffer);
+    glBufferData(GL_ARRAY_BUFFER, modelTexCoords.size() * sizeof(GLKVector2), &modelTexCoords[0], GL_STATIC_DRAW);
+    // model normals
+    glGenBuffers(1, &modelNormalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, modelNormalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, modelNormals.size() * sizeof(GLKVector3), &modelNormals[0], GL_STATIC_DRAW);
+    // model indices
+    glGenBuffers(1, &modelElementBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelElementBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelIndices.size() * sizeof(unsigned short), &modelIndices[0], GL_STATIC_DRAW);
+    
+    // quad vertex position
+    glGenBuffers(1, &quadVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 3 * sizeof(float), quadVertices, GL_STATIC_DRAW);
+    // quad UVs
+    glGenBuffers(1, &quadUVBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, quadUVBuffer);
+    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 2 * sizeof(float), quadTexCoords, GL_STATIC_DRAW);
+    // quad normals
+    glGenBuffers(1, &quadNormalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 3 * sizeof(float), quadNormals, GL_STATIC_DRAW);
+    // quad indices
+    glGenBuffers(1, &quadElementBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadElementBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quadNumIndices * sizeof(unsigned int), quadIndices, GL_STATIC_DRAW);
+}
+
 - (void)reset {
     cameraX = mazeEntrance + 0.5;
     cameraZ = 0.5f;
@@ -168,9 +207,8 @@ bool **mazeArray;
     v = GLKMatrix4MakeYRotation(cameraRot);
     v = GLKMatrix4Translate(v, -cameraX, 0, cameraZ);
     
-    float hFOV = 90.0f;
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(hFOV), aspect, 0.1f, mazeLength);
+    p = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(H_FOV), aspect, 0.1f, mazeLength);
     
     _sameCell = floor(nmeZ) == floor(cameraZ) && floor(nmeX) == floor(cameraX);
     if (!_sameCell && !_controllingNME) {
@@ -192,18 +230,16 @@ double wrapMax(double x, double max) {
     cameraRot -= xDelta;
     cameraRot = wrapMax(cameraRot, 2 * M_PI);
     
-    float radius = 0.25;
-    
     float cameraZ_delta = cos(cameraRot) * yDelta;
-    cameraZ = MAX(MIN(cameraZ + cameraZ_delta, mazeLength - radius), radius);
-    float cameraZ_test_offset = signbit(cameraZ_delta)?-radius:radius;
+    cameraZ = MAX(MIN(cameraZ + cameraZ_delta, mazeLength - CAMERA_RADIUS), CAMERA_RADIUS);
+    float cameraZ_test_offset = signbit(cameraZ_delta)?-CAMERA_RADIUS:CAMERA_RADIUS;
     if (!mazeArray[(int)(cameraZ + cameraZ_test_offset)][(int)cameraX]) {
         cameraZ = roundf(cameraZ) - cameraZ_test_offset;
     }
     
     float cameraX_delta = sin(cameraRot) * yDelta;
-    cameraX = MAX(MIN(cameraX + cameraX_delta, mazeLength - radius), radius);
-    float cameraX_test_offset = signbit(cameraX_delta)?-radius:radius;
+    cameraX = MAX(MIN(cameraX + cameraX_delta, mazeLength - CAMERA_RADIUS), CAMERA_RADIUS);
+    float cameraX_test_offset = signbit(cameraX_delta)?-CAMERA_RADIUS:CAMERA_RADIUS;
     if (!mazeArray[(int)cameraZ][(int)(cameraX + cameraX_test_offset)]) {
         cameraX = roundf(cameraX) - cameraX_test_offset;
     }
@@ -229,41 +265,6 @@ double wrapMax(double x, double max) {
     if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
         nmeX = roundf(nmeX) - nmeX_test_offset;
     }
-}
-
-- (void)generateVBOs; {
-    glGenBuffers(1, &modelVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, modelVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(GLKVector3), &modelVertices[0], GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &modelUVBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, modelUVBuffer);
-    glBufferData(GL_ARRAY_BUFFER, modelTexCoords.size() * sizeof(GLKVector2), &modelTexCoords[0], GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &modelNormalBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, modelNormalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, modelNormals.size() * sizeof(GLKVector3), &modelNormals[0], GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &modelElementBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelElementBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelIndices.size() * sizeof(unsigned short), &modelIndices[0], GL_STATIC_DRAW);
-    
-    
-    glGenBuffers(1, &quadVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 3 * sizeof(float), quadVertices, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &quadUVBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, quadUVBuffer);
-    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 2 * sizeof(float), quadTexCoords, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &quadNormalBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 3 * sizeof(float), quadNormals, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &quadElementBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadElementBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quadNumIndices * sizeof(unsigned int), quadIndices, GL_STATIC_DRAW);
 }
 
 - (void)draw:(CGRect)drawRect; {
