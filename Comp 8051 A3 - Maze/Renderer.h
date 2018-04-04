@@ -7,7 +7,6 @@
 #define Renderer_h
 #import <GLKit/GLKit.h>
 
-
 @interface Renderer : NSObject
 
 - (void)setup:(GLKView *)view;
