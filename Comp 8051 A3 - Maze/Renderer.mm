@@ -9,6 +9,7 @@
 #import <chrono>
 #import "GLESRenderer.hpp"
 #import "ObjLoader.h"
+#import <vector>
 
 // Uniform index.
 enum {
@@ -65,9 +66,9 @@ bool **mazeArray;
     float *quadVertices, *quadTexCoords, *quadNormals;
     int *quadIndices, quadNumIndices;
     
-    GLKVector3 *modelVertices, *modelNormals;
-    GLKVector2 *modelTexCoords;
-    int *modelIndices, modelNumIndices;
+    std::vector<GLKVector3> modelVertices, modelNormals;
+    std::vector<GLKVector2> modelTexCoords;
+    std::vector<GLuint> modelIndices;
     
     int tester; //testing var for enemy rotation
 }
@@ -92,11 +93,10 @@ bool **mazeArray;
     // model for enemy
     ObjLoader *objLoader = [[ObjLoader alloc] init];
     [objLoader ReadFile:@"suzanne.obj"];
-    modelVertices = [objLoader verticesPointer];
-    modelTexCoords = [objLoader texCoordsPointer];
-    modelNormals = [objLoader normalsPointer];
-    modelIndices = [objLoader indicesPointer];
-    modelNumIndices = [objLoader numIndices];
+    modelVertices = objLoader.vertices;
+    modelTexCoords = objLoader.texCoords;
+    modelNormals = objLoader.normals;
+    modelIndices = objLoader.indices;
     
     // maze data representation
     MazeGenerator *mazeGenerator = [[MazeGenerator alloc] init];
@@ -257,15 +257,15 @@ double wrapMax(double x, double max) {
     glEnableVertexAttribArray(2);
     
     // draw cube
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLKVector3), modelVertices);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLKVector2), modelTexCoords);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(GLKVector3), modelNormals);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLKVector3), &modelVertices[0]);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLKVector2), &modelTexCoords[0]);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(GLKVector3), &modelNormals[0]);
     glBindTexture(GL_TEXTURE_2D, crateTexture);
     m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
     m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);
     m = GLKMatrix4Scale(m, _scaleNME, _scaleNME, _scaleNME);
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    glDrawElements(GL_TRIANGLES, modelNumIndices, GL_UNSIGNED_INT, modelIndices);
+    glDrawElements(GL_TRIANGLES, (int)modelIndices.size(), GL_UNSIGNED_INT, &modelIndices[0]);
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);

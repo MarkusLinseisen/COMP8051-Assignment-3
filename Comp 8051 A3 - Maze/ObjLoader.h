@@ -10,15 +10,16 @@
 #define ObjLoader_h
 #import <Foundation/Foundation.h>
 #import <GLKit/GLKit.h>
+#import <vector>
 
 @interface ObjLoader : NSObject
 
 - (void)ReadFile:(NSString *)fileName;
 
-@property GLKVector3 *verticesPointer;
-@property GLKVector2 *texCoordsPointer;
-@property GLKVector3 *normalsPointer;
-@property int *indicesPointer;
+@property std::vector<GLKVector3> vertices;
+@property std::vector<GLKVector2> texCoords;
+@property std::vector<GLKVector3> normals;
+@property std::vector<GLuint> indices;
 @property int numIndices;
 
 @end
