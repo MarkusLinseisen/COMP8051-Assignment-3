@@ -61,6 +61,11 @@ bool **mazeArray;
     GLuint modelNormalBuffer;
     GLuint modelElementBuffer;
     
+    GLuint quadVertexBuffer;
+    GLuint quadUVBuffer;
+    GLuint quadNormalBuffer;
+    GLuint quadElementBuffer;
+    
     GLKMatrix4 m, v, p;
 
     float cameraX, cameraZ; // camera location
@@ -261,6 +266,23 @@ double wrapMax(double x, double max) {
     glGenBuffers(1, &modelElementBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelElementBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelIndices.size() * sizeof(unsigned short), &modelIndices[0], GL_STATIC_DRAW);
+    
+    
+    glGenBuffers(1, &quadVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 3 * sizeof(float), quadVertices, GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &quadUVBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, quadUVBuffer);
+    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 2 * sizeof(float), quadTexCoords, GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &quadNormalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, quadNumIndices * 3 * sizeof(float), quadNormals, GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &quadElementBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadElementBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quadNumIndices * sizeof(unsigned int), quadIndices, GL_STATIC_DRAW);
 }
 
 - (void)draw:(CGRect)drawRect; {
@@ -279,13 +301,34 @@ double wrapMax(double x, double max) {
     }
     
     glViewport(0, 0, (int)theView.drawableWidth, (int)theView.drawableHeight);
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     [self drawNME];
-    /*
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadVertices);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), quadTexCoords);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), quadNormals);
+    [self drawMaze];
+}
+
+- (void)drawNME {
+    glBindBuffer(GL_ARRAY_BUFFER, modelVertexBuffer); glVertexAttribPointer(0,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+    glBindBuffer(GL_ARRAY_BUFFER, modelUVBuffer); glVertexAttribPointer(1,2,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+    glBindBuffer(GL_ARRAY_BUFFER, modelNormalBuffer); glVertexAttribPointer(2,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelElementBuffer);
+    
+    glBindTexture(GL_TEXTURE_2D, crateTexture);
+    
+    m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
+    m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);
+    m = GLKMatrix4Scale(m, _scaleNME, _scaleNME, _scaleNME);
+    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
+    
+    glDrawElements(GL_TRIANGLES, (int)modelIndices.size(), GL_UNSIGNED_SHORT, (void*)0 );
+}
+
+- (void)drawMaze {
+    glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer); glVertexAttribPointer(0,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+    glBindBuffer(GL_ARRAY_BUFFER, quadUVBuffer); glVertexAttribPointer(1,2,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+    glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer); glVertexAttribPointer(2,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadElementBuffer);
+    
     for (int x = 0; x < mazeLength; x++) {
         for (int z = 0; z < mazeLength; z++) {
             if (mazeArray[z][x]) {
@@ -295,8 +338,8 @@ double wrapMax(double x, double max) {
                 m = GLKMatrix4RotateX(m, M_PI / -2.0);
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                glDrawElements (GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices);
-                
+                glDrawElements(GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, (void*)0 );
+
                 // draw walls
                 m = GLKMatrix4MakeTranslation(x + 0.5, 0, -z - 0.5);
                 int k[] = {0, 1};
@@ -314,7 +357,7 @@ double wrapMax(double x, double max) {
                             glBindTexture(GL_TEXTURE_2D, wallNeitherTexture);
                         }
                         glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-                        glDrawElements ( GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, quadIndices );
+                        glDrawElements(GL_TRIANGLES, quadNumIndices, GL_UNSIGNED_INT, (void*)0 );
                     }
                     // rotate kernel 90 degrees
                     int temp = k[1];
@@ -323,33 +366,10 @@ double wrapMax(double x, double max) {
                     // rotate m 90 degrees
                     m = GLKMatrix4RotateY(m, M_PI / -2.0);
                 }
-
+                
             }
         }
     }
-    */
-}
-
-- (void)drawNME {
-    glBindBuffer(GL_ARRAY_BUFFER, modelVertexBuffer);
-    glVertexAttribPointer(0,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
-
-    glBindBuffer(GL_ARRAY_BUFFER, modelUVBuffer);
-    glVertexAttribPointer(1,2,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
-
-    glBindBuffer(GL_ARRAY_BUFFER, modelNormalBuffer);
-    glVertexAttribPointer(2,3,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelElementBuffer);
-    
-    glBindTexture(GL_TEXTURE_2D, crateTexture);
-    
-    m = GLKMatrix4MakeTranslation(nmeX, 0, -nmeZ);
-    m = GLKMatrix4Rotate(m, nmeRot + M_PI, 0.0, 1.0, 0.0);
-    m = GLKMatrix4Scale(m, _scaleNME, _scaleNME, _scaleNME);
-    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEW_MATRIX], 1, FALSE, (const float *)GLKMatrix4Multiply(v, m).m);
-    
-    glDrawElements(GL_TRIANGLES, (int)modelIndices.size(), GL_UNSIGNED_SHORT, (void*)0 );
 }
 
 - (bool)setupShaders {
