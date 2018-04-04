@@ -76,11 +76,6 @@ const int MAZE_LENGTH = MAZE_SIZE * 2 + 1;
 
 @implementation Renderer
 
-@synthesize isDay;
-@synthesize spotlightToggle;
-@synthesize fogToggle;
-@synthesize fogUseExp;
-
 - (void)dealloc {
     glDeleteProgram(programObject);
 }
@@ -92,10 +87,10 @@ const int MAZE_LENGTH = MAZE_SIZE * 2 + 1;
         NSLog(@"Failed to create ES context");
     }
     
-    spotlightToggle = true;
-    isDay = true;
-    fogToggle = true;
-    fogUseExp = true;
+    _spotlightToggle = true;
+    _isDay = true;
+    _fogToggle = true;
+    _fogUseExp = true;
     
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     theView = view;
@@ -264,10 +259,10 @@ double wrapMax(double x, double max) {
 
 - (void)draw:(CGRect)drawRect; {
     glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, FALSE, (const float *)p.m);
-    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], spotlightToggle);
-    glUniform1i(uniforms[UNIFORM_FOG], fogToggle);
-    glUniform1i(uniforms[UNIFORM_FOGUSEEXP], fogUseExp);
-    if (isDay) {
+    glUniform1i(uniforms[UNIFORM_SPOTLIGHT], _spotlightToggle);
+    glUniform1i(uniforms[UNIFORM_FOG], _fogToggle);
+    glUniform1i(uniforms[UNIFORM_FOGUSEEXP], _fogUseExp);
+    if (_isDay) {
         glUniform4f(uniforms[UNIFORM_AMBIENTCOLOR], 0.784, 0.706, 0.627, 1.000);
         glUniform4f(uniforms[UNIFORM_FOGCOLOR], 0.784, 0.706, 0.627, 1.000);
         glClearColor(1.000, 0.671, 0.921, 1.00);
