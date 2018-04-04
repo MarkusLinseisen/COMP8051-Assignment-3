@@ -16,12 +16,14 @@
     std::vector<GLKVector3> tempVertices;
     std::vector<GLKVector2> tempTexCoords;
     std::vector<GLKVector3> tempNormals;
+    float halfSize;
 }
 
 - (void)ReadFile:(NSString *)fileName {
     NSError *error;
     NSString *path = [[NSBundle mainBundle] pathForResource:fileName ofType:nil];
     NSString *content = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+    halfSize = 0;
     
     if(content != nil) {
         NSArray *lines = [content componentsSeparatedByString:@"\n"];
@@ -36,6 +38,11 @@
                 [self ReadFace:line];
             }
         }
+        for (int i = 0; i < _indices.size(); i++) {
+            _vertices[i].x /= 2.0 * halfSize;
+            _vertices[i].y /= 2.0 * halfSize;
+            _vertices[i].z /= 2.0 * halfSize;
+        }
     } else {
         NSLog(@"Error loading file: %@", error.localizedDescription);
     }
@@ -45,6 +52,7 @@
     GLKVector3 vertex;
     sscanf([_line UTF8String], "%*s %f %f %f\n", &vertex.x, &vertex.y, &vertex.z );
     tempVertices.push_back(vertex);
+    halfSize = fmax(halfSize, GLKVector3Length(vertex));
 }
 
 - (void)ReadTexture:(NSString *)_line {

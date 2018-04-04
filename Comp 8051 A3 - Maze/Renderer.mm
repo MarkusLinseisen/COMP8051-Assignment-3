@@ -187,11 +187,11 @@ const int MAZE_LENGTH = MAZE_SIZE * 2 + 1;
     cameraRot = 0.0f;
     
     _controllingNME = false;
-    _scaleNME = 0.3;
+    _scaleNME = 0.6;
     nmeX = MAZE_ENTRANCE + 0.5;
     nmeZ = 1.5f;
     nmeRot = 0.0f;
-    tester = 120;
+    tester = 30;
 }
 
 - (void)update {
