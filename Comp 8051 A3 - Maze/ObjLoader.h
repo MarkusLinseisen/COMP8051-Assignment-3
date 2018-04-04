@@ -19,7 +19,7 @@
 @property std::vector<GLKVector3> vertices;
 @property std::vector<GLKVector2> texCoords;
 @property std::vector<GLKVector3> normals;
-@property std::vector<GLuint> indices;
+@property std::vector<unsigned short> indices;
 @property int numIndices;
 
 @end

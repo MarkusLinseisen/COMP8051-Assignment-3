@@ -73,7 +73,7 @@ bool **mazeArray;
     
     std::vector<GLKVector3> modelVertices, modelNormals;
     std::vector<GLKVector2> modelTexCoords;
-    std::vector<GLuint> modelIndices;
+    std::vector<unsigned short> modelIndices;
     
     int tester; //testing var for enemy rotation
 }
@@ -256,7 +256,7 @@ double wrapMax(double x, double max) {
     
     glGenBuffers(1, &modelElementBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelElementBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelIndices.size() * sizeof(GLuint), &modelIndices[0] , GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelIndices.size() * sizeof(unsigned short), &modelIndices[0], GL_STATIC_DRAW);
 }
 
 - (void)draw:(CGRect)drawRect; {
