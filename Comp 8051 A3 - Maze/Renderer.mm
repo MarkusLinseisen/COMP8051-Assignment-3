@@ -56,6 +56,11 @@ bool **mazeArray;
     GLuint wallBothTexture;
     GLuint wallNeitherTexture;
     
+    GLuint modelVertexBuffer;
+    GLuint modelUVBuffer;
+    GLuint modelNormalBuffer;
+    GLuint modelElementBuffer;
+    
     GLKMatrix4 m, v, p;
 
     float cameraX, cameraZ; // camera location
@@ -146,6 +151,7 @@ bool **mazeArray;
     
     //set camera and nme to initial values
     [self reset];
+    [self generateVBOs];
 }
 
 - (void)reset {
@@ -232,6 +238,25 @@ double wrapMax(double x, double max) {
     if (!mazeArray[(int)nmeZ][(int)(nmeX + nmeX_test_offset)]) {
         nmeX = roundf(nmeX) - nmeX_test_offset;
     }
+}
+
+- (void)generateVBOs; {
+    // Load it into a VBO
+    glGenBuffers(1, &modelVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, modelVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(GLKVector3), &modelVertices[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &modelUVBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, modelUVBuffer);
+    glBufferData(GL_ARRAY_BUFFER, modelTexCoords.size() * sizeof(GLKVector2), &modelTexCoords[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &modelNormalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, modelNormalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, modelNormals.size() * sizeof(GLKVector3), &modelNormals[0], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &modelElementBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, modelElementBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, modelIndices.size() * sizeof(GLuint), &modelIndices[0] , GL_STATIC_DRAW);
 }
 
 - (void)draw:(CGRect)drawRect; {
