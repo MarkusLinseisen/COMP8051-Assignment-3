@@ -22,7 +22,8 @@ void main() {
     const vec3 ambientDirection = vec3(0.0, -1.0, 0.0);
     const vec3 spotlightDirection = vec3(0.0, 0.0, -1.0);
     
-    vec3 position = normalize(v_position);
+    float position_length = length(v_position);
+    vec3 position = v_position / position_length;
     vec3 normal = normalize(v_normal);
 
     float diffuseCoefficient = dot(normal, -ambientDirection) * 0.5 + 0.5;
@@ -44,9 +45,9 @@ void main() {
     if (fog) {
         float fogMix;
         if (fogUseExp) {
-            fogMix = exp(-length(v_position) * fogDensity);
+            fogMix = exp(-position_length * fogDensity);
         } else {
-            fogMix = max(0.0, 1.0 - length(v_position) / fogEnd);
+            fogMix = max(0.0, 1.0 - position_length / fogEnd);
         }
         linearColor = mix(fogColor, linearColor, fogMix);
     }
