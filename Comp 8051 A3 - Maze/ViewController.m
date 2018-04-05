@@ -7,6 +7,7 @@
 @interface ViewController() {
     Renderer *glesRenderer; // ###
 }
+@property (strong, nonatomic) IBOutlet UIView *ModelPanel;
 @end
 
 @implementation ViewController
@@ -31,6 +32,19 @@
     glesRenderer.fogUseExp = true;
 }
     
+- (IBAction)plusScale:(id)sender {
+    glesRenderer.scaleNME *= 1.25;
+}
+
+- (IBAction)minusScale:(id)sender {
+    glesRenderer.scaleNME *= 0.8;
+}
+
+- (IBAction)swapControl:(id)sender {
+    glesRenderer.controllingNME = !glesRenderer.controllingNME;
+}
+
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -39,7 +53,7 @@
     glesRenderer = [[Renderer alloc] init];
     GLKView *view = (GLKView *)self.view;
     [glesRenderer setup:view];
-    [glesRenderer loadModels];
+    [glesRenderer loadResources];
     // ### >>>
     
     // single finger double tap
@@ -62,6 +76,7 @@
     [self.view addGestureRecognizer:panning];
     
     _minimapLabel.hidden = true;
+    _ModelPanel.hidden=true;
 }
 
 // resets position
@@ -80,7 +95,14 @@
     CGPoint translatedPoint = [recognizer translationInView:recognizer.view.superview];
     [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
     float scale = 1.0f / recognizer.view.superview.bounds.size.width; // scales panning to be independant of screen resolution
-    [glesRenderer translateRect:(translatedPoint.x * scale) secondDelta:(translatedPoint.y * scale)];
+    translatedPoint.x *= 2 * scale;
+    translatedPoint.y *= 5 * scale;
+    if (!glesRenderer.controllingNME) {
+        [glesRenderer translateRect:translatedPoint.x secondDelta:translatedPoint.y];
+    } else {
+        [glesRenderer moveNME:translatedPoint.x secondDelta:translatedPoint.y];
+    }
+
 }
 
 - (void)didReceiveMemoryWarning {
@@ -89,6 +111,7 @@
 
 - (void)update {
     [glesRenderer update];
+    _ModelPanel.hidden = !glesRenderer.sameCell && !glesRenderer.controllingNME;
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
