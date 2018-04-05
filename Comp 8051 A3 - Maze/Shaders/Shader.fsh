@@ -23,18 +23,18 @@ void main() {
     const vec3 spotlightDirection = vec3(0.0, 0.0, -1.0);
     
     float position_length = length(v_position);
-    vec3 position = v_position / position_length;
+    vec3 position = v_position  / position_length;
     vec3 normal = normalize(v_normal);
 
     float diffuseCoefficient = dot(normal, -ambientDirection) * 0.5 + 0.5;
     vec4 diffuse = ambientColor * diffuseCoefficient;
-    float rimCoefficient = dot(normal, position) * 0.5 + 0.5;
-    vec4 rim = rimCoefficient * ambientColor;
+    
+    diffuseCoefficient = max(0.0, dot(normal, -position));
+    vec4 rim = (1.0 - diffuseCoefficient) * ambientColor;
 
     if (spotlight) {
         float spotlightValue = dot(position, spotlightDirection);
         if (spotlightValue > spotlightCutoff) {
-            diffuseCoefficient = dot(normal, -position) * 0.5 + 0.5;
             diffuse += spotlightColor * diffuseCoefficient * sqrt((spotlightValue - spotlightCutoff) / (1.0 - spotlightCutoff));
         }
     }
